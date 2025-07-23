@@ -1,0 +1,16 @@
+:root{
+    --backgroundColor: white;
+    --borderColor: black;
+    --activeBorderColor: blue;
+    --shadowColor: gray;
+    --textColor: black;
+    --borderRadius: 0.5rem;
+}
+
+[data-theme="dark"] {
+    --backgroundColor: black;
+    --borderColor: white;
+    --activeBorderColor: blue;
+    --shadowColor: gray;
+    --textColor: white;
+}

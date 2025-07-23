@@ -1,0 +1,46 @@
+@import url("../../constants/variables.css");
+
+.LoginPage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100svh - 50px);
+    flex-grow: 1;
+    margin-inline: 10%;
+}
+
+@media (max-width: 1000px) {
+    .LoginPage {
+        margin-inline: 1%;
+    }
+}
+
+.LoginPage-form{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: clamp(100px, 50%, 600px);
+}
+
+.LoginPage-form > input {
+    height: 2.2rem;
+    line-height: 2.2rem;
+    border: 1px solid var(--borderColor);
+    border-radius: var(--borderRadius);
+}
+
+.error-message{
+    color: red;
+    text-align: center;
+}
+
+.loader{
+    text-align: center;
+}
+
+.RegisterButton{
+    display: inline;
+    border: none;
+    background-color: transparent;
+    color: blue;
+}
