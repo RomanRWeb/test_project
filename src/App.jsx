@@ -18,7 +18,7 @@ function App() {
                         <nav>
                             <div>
                                 <Link to="/about">О сайте</Link>
-                                <Link to="/">Главная</Link>
+                                <Link to="/home">Главная</Link>
                             </div>
                             <div>
                                 <ThemeSwitcher></ThemeSwitcher>
@@ -28,7 +28,7 @@ function App() {
 
                     </header>
                     <Routes>
-                        <Route path="/" element={<HomePage/>}/>
+                        <Route path="/home" element={<HomePage/>}/>
                         <Route path="/about" element={<AboutPage/>}/>
                         <Route path="/login" element={<LoginPage/>}/>
                     </Routes>

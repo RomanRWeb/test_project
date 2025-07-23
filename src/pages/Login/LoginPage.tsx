@@ -8,7 +8,7 @@ import {createNewUser, fetchUserByID} from "../../redux/thunks/auth.ts";
 import {setUserData} from "../../redux/slices/authSlice.ts";
 import {UserData} from "../../types/index.ts";
 
-function LoginPage() {
+const LoginPage:React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
     const authState = useSelector((state: RootState) => state.auth);
 
