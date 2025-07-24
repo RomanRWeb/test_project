@@ -10,3 +10,20 @@ export interface AuthState {
     isLoading: boolean;
     error: unknown | null | ReactNode | object;
 }
+
+export interface Task {
+    id: string,
+    name: string,
+    description: string,
+}
+
+export interface TasksState {
+    tasks: Task[];
+    isLoading: boolean;
+    error: unknown | null | ReactNode | object;
+}
+
+export interface ReduxType {
+    auth: AuthState;
+    tasks: TasksState;
+}

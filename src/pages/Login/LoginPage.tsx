@@ -19,13 +19,24 @@ const LoginPage:React.FC = () => {
     const [register, setRegister] = useState(false);
 
     useEffect(() => {
-        setLoginError('')
+        let loginErr = "";
+        if (register){
+            if (password != passwordRepeat) {
+                loginErr = "Passwords don't match";
+            }
+            if (password.length < 3) {
+                loginErr = "Passwords too short";
+            }
+        }
+        setLoginError(loginErr);
         console.log('password', JSON.stringify(password, null, 2));
-    }, [password])
+        console.log('passwordRepeat', JSON.stringify(passwordRepeat, null, 2));
+    }, [password, passwordRepeat, register])
 
     const handleLogin = () => {
         // setLoading(true)
         const userData: UserData = {id: username, password: password};
+        console.log('userData', JSON.stringify(userData, null, 2));
         dispatch(fetchUserByID(userData)).then(unwrapResult).then((result) => {
             console.log('--someVal', JSON.stringify(result, null, 2));
             if (result === null) setLoginError("password dont match")
@@ -63,25 +74,23 @@ const LoginPage:React.FC = () => {
     //     })
     // }
 
-    const handleLogout = () => {
+    const handleLogout = useCallback(() => {
         dispatch(setUserData(null));
-    }
-
-    const handleCheck = useCallback(() => {
-        console.log(authState);
-    }, [])
+    }, [dispatch])
 
     const handleSwitchClick = useCallback(() => {
         setRegister(!register);
     }, [register])
 
-    const handleClick = () => {
-        if (!register) {
-            handleLogin()
-        } else {
-            handleRegister()
+    const handleClick = useCallback(() => {
+        if (loginError.length == 0){
+            if (!register) {
+                handleLogin()
+            } else {
+                handleRegister()
+            }
         }
-    }
+    },[loginError, register, handleLogin, handleRegister])
 
     return (
         <div className={"LoginPage"}>
@@ -106,6 +115,8 @@ const LoginPage:React.FC = () => {
                         type="password"
                         placeholder="Пароль"
                         value={password}
+                        required
+                        minLength={3}
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     {register ? <input
@@ -113,10 +124,12 @@ const LoginPage:React.FC = () => {
                         type="password"
                         placeholder="Повторите пароль"
                         value={passwordRepeat}
+                        required
+                        minLength={3}
                         onChange={(e) => setPasswordRepeat(e.target.value)}
                     /> : null}
                     <button type="button" className={"SubmitButton"} onClick={() => handleClick()}
-                            disabled={authState.isLoading || username.trim() === ''}>
+                            disabled={authState.isLoading || username === '' || password === ''}>
                         {register ? "Зарегистироваться" : "Войти"}
                     </button>
                     <div>
@@ -128,7 +141,6 @@ const LoginPage:React.FC = () => {
                     </div>
                 </form>
             )}
-            {/*<button onClick={handleCheck}>User check</button>*/}
         </div>
     )
 

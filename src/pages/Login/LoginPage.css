@@ -9,6 +9,20 @@
     margin-inline: 10%;
 }
 
+.SubmitButton {
+    border-radius: var(--borderRadius);
+    border-width: 1px;
+    height: 2.2rem;
+}
+
+.submitButton:active {
+    cursor: pointer;
+}
+
+.SubmitButton:disabled {
+    cursor: not-allowed;
+}
+
 @media (max-width: 1000px) {
     .LoginPage {
         margin-inline: 1%;
