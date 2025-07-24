@@ -13,6 +13,7 @@ export interface AuthState {
 
 export interface Task {
     id: string,
+    userID: string,
     name: string,
     description: string,
 }

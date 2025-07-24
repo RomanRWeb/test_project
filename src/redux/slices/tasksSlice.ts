@@ -12,8 +12,13 @@ export const tasksSlice = createSlice({
     name: "tasks",
     initialState: initialSliceState,
     reducers: {
-        SetTasks(state, {payload}: { payload: Task[] }) {
+        setTasks(state, {payload}: { payload: Task[] }) {
+            console.log('payload', JSON.stringify(payload, null, 2));
             state.tasks = payload;
+        },
+        createTask(state, {payload}: { payload: Task }) {
+            console.log('payload', JSON.stringify(payload, null, 2));
+            state.tasks = state.tasks.concat(payload);
         }
     },
     extraReducers: (builder) => {
@@ -35,4 +40,4 @@ export const tasksSlice = createSlice({
     }
 })
 
-export const {SetTasks} = tasksSlice.actions;
+export const {setTasks, createTask} = tasksSlice.actions;
