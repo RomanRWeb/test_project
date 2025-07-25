@@ -1,7 +1,7 @@
 import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 import {UserData} from "../../types";
-import {fetchByID, fetchNewUser} from "../api/index.ts";
-import {setUserData} from "../slices/authSlice.ts";
+import {fetchByID, fetchNewUser} from "../api";
+import {setUserData} from "../slices/authSlice";
 
 export const fetchUserByID = createAsyncThunk(
     'user/fetchUserByID',
@@ -12,9 +12,13 @@ export const fetchUserByID = createAsyncThunk(
             if (result.ok) {
                 const user: UserData = await result.json();
                 console.log('user', JSON.stringify(user, null, 2));
-                if (user.password == userDataEntered.password) {
-                    dispatch(setUserData(user))
-                    return user;
+                console.log('userDataEntered', JSON.stringify(userDataEntered, null, 2));
+                console.log('user.password', JSON.stringify(user.password, null, 2));
+                console.log('userDataEntered.password', JSON.stringify(userDataEntered.password, null, 2));
+                console.log('compare', JSON.stringify(user.password == userDataEntered.password, null, 2));
+                if (user[0].password == userDataEntered.password) {
+                    dispatch(setUserData(user[0]))
+                    return user[0];
                 } else {
                     return null
                 }

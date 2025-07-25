@@ -1,6 +1,6 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {AuthState, UserData} from "../../types";
-import {createNewUser, fetchUserByID} from "../thunks/auth.ts";
+import {createNewUser, fetchUserByID} from "../thunks/auth";
 
 const initialSliceState: AuthState = {
     user: null,

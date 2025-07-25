@@ -1,8 +1,8 @@
 import * as React from 'react';
-import withAuth from "../../hocs/withAuth.tsx";
-import {AppDispatch, RootState} from "../../store.ts";
+import withAuth from "../../hocs/withAuth";
+import {AppDispatch, RootState} from "../../store";
 import {useDispatch, useSelector} from "react-redux";
-import {fetchUserTasks} from "../../redux/thunks/tasks.ts";
+import {fetchUserTasks} from "../../redux/thunks/tasks";
 import {useCallback} from "react";
 
 const HomePage: React.FC = () => {

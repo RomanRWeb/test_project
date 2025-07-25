@@ -1,7 +1,8 @@
-import {UserData} from "../../types/index.ts";
+import {UserData} from "../../types";
 
 export const fetchByID = async (userData: UserData) => {
-    const url = new URL(`https://687f7993efe65e520089de5c.mockapi.io/users/${userData.id}`);
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users/`);
+    url.searchParams.append('email', userData.email);
 
     return fetch(url, {
         method: 'GET',
@@ -10,7 +11,7 @@ export const fetchByID = async (userData: UserData) => {
 }
 
 export const fetchNewUser = async (userData: UserData) => {
-    const url = new URL(`https://687f7993efe65e520089de5c.mockapi.io/users`);
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users`);
 
     return fetch(url, {
         method: 'POST',
@@ -20,7 +21,7 @@ export const fetchNewUser = async (userData: UserData) => {
 }
 
 export const fetchTasks = async (userData: UserData) => {
-    const url = new URL(`https://687f7993efe65e520089de5c.mockapi.io/users/${userData.id}/tasks`);
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users/${userData.id}/tasks`);
 
     return fetch(url, {
         method: 'GET',
@@ -29,7 +30,7 @@ export const fetchTasks = async (userData: UserData) => {
 }
 
 export const fetchNewTasks = async (userData: UserData, { name: taskName, description: taskDescription} : {name: string, description:string}) => {
-    const url = new URL(`https://687f7993efe65e520089de5c.mockapi.io/users/${userData.id}/tasks`);
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users/${userData.id}/tasks`);
 
     return fetch(url, {
         method: 'POST',
@@ -39,7 +40,7 @@ export const fetchNewTasks = async (userData: UserData, { name: taskName, descri
 }
 
 export const fetchEditTasks = async (userData: UserData, { name: taskName, description: taskDescription} : {name: string, description:string}) => {
-    const url = new URL(`https://687f7993efe65e520089de5c.mockapi.io/users/${userData.id}/tasks`);
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users/${userData.id}/tasks`);
 
     return fetch(url, {
         method: 'PUT',

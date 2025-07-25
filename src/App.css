@@ -2,7 +2,6 @@
 
 main {
     color: var(--textColor);
-    background-color: var(--backgroundColor);
 }
 
 .App-header {
@@ -11,37 +10,39 @@ main {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    margin-inline: 10%;
+    margin-inline: auto;
+    width: clamp(200px, 80%, 1600px);
     border-radius: 0 0 0.5rem 1rem;
-    border-bottom: 3px solid var(--borderColor);
-    border-inline: 3px solid var(--borderColor);
+    /*border-bottom: 3px solid var(--borderColor);*/
+    /*border-inline: 3px solid var(--borderColor);*/
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
     .App-header {
+        width: auto;
         margin-inline: 1%;
     }
 }
 
-.App-header > nav{
+.App-nav{
     display: flex;
     align-items: center;
     flex-grow: 1;
     height: 100%;
 }
 
-.App-header > nav > div {
+.App-nav > div {
 
     display: flex;
     flex: 1;
     justify-content: center;
 }
 
-.App-header > nav > div:first-child {
+.App-nav > div:first-child {
     justify-content: flex-start;
 }
 
-.App-header > nav > div:last-child {
+.App-nav > div:last-child {
     justify-content: flex-end;
 }
 

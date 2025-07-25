@@ -1,6 +1,6 @@
-import {Task, TasksState} from "../../types/index.ts";
+import {Task, TasksState} from "../../types";
 import {createSlice} from "@reduxjs/toolkit";
-import {fetchUserTasks} from "../thunks/tasks.ts";
+import {fetchUserTasks} from "../thunks/tasks";
 
 const initialSliceState: TasksState = {
     tasks: [],

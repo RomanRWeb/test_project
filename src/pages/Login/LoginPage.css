@@ -9,20 +9,6 @@
     margin-inline: 10%;
 }
 
-.SubmitButton {
-    border-radius: var(--borderRadius);
-    border-width: 1px;
-    height: 2.2rem;
-}
-
-.submitButton:active {
-    cursor: pointer;
-}
-
-.SubmitButton:disabled {
-    cursor: not-allowed;
-}
-
 @media (max-width: 1000px) {
     .LoginPage {
         margin-inline: 1%;
@@ -36,13 +22,6 @@
     width: clamp(100px, 50%, 600px);
 }
 
-.LoginPage-form > input {
-    height: 2.2rem;
-    line-height: 2.2rem;
-    border: 1px solid var(--borderColor);
-    border-radius: var(--borderRadius);
-}
-
 .error-message{
     color: red;
     text-align: center;
@@ -52,9 +31,7 @@
     text-align: center;
 }
 
-.RegisterButton{
-    display: inline;
-    border: none;
-    background-color: transparent;
-    color: blue;
+.big-text{
+    text-align: center;
+    font-size: 2rem;
 }

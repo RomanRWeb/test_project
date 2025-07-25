@@ -1,13 +1,13 @@
 import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
-import {ReduxType, Task, UserData} from "../../types/index.ts";
-import {fetchNewTasks, fetchTasks} from "../api/index.ts";
-import {createTask, setTasks} from "../slices/tasksSlice.ts";
+import {ReduxType, Task, UserData} from "../../types";
+import {fetchNewTasks, fetchTasks} from "../api";
+import {createTask, setTasks} from "../slices/tasksSlice";
 
 
 export const fetchUserTasks = createAsyncThunk(
     'tasks/fetchUserTasks',
     async (_, {dispatch, rejectWithValue, getState}) => {
-        const state: ReduxType = getState();
+        const state = getState() as ReduxType;
         const user: UserData = state.auth.user;
         console.log('user', JSON.stringify(user, null, 2));
         try {
@@ -29,7 +29,7 @@ export const fetchUserTasks = createAsyncThunk(
 export const createNewTasks = createAsyncThunk(
     `tasks/createNewTask`,
     async (taskData: { name: string, description: string }, {dispatch, rejectWithValue, getState}) => {
-        const state: ReduxType = getState();
+        const state = getState() as ReduxType;
         const user: UserData = state.auth.user;
         try {
             const result = await fetchNewTasks(user, taskData);

@@ -2,53 +2,37 @@
   "name": "test-app",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "eject": "react-scripts eject"
+  },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "antd": "^5.26.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-redux": "^9.2.0",
-    "react-router-dom": "^7.7.0",
+    "react-router-dom": "^7.7.1",
     "react-scripts": "5.0.1",
+    "runes2": "^1.1.4",
     "web-vitals": "^2.1.4"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "plugins": [
-      "import",
-      "@typescript-eslint"
-    ],
-    "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended",
-      "plugin:import/errors",
-      "plugin:import/warnings"
-    ],
-    "rules": {
-      "@typescript-eslint/no-unused-vars": "off",
-      "no-undef": "off",
-      "react/react-in-jsx-scope": "off"
-    },
-    "settings": {
-      "import/extensions": [
-        ".js",
-        ".jsx",
-        ".ts",
-        ".tsx"
-      ],
-      "import/resolver": {
-        "typescript": {
-        }
-      }
-    }
+  "devDependencies": {
+    "@types/react": "^19.1.8",
+    "@typescript-eslint/eslint-plugin": "6.21.0",
+    "@typescript-eslint/parser": "6.21.0",
+    "eslint": "8.57.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "typescript": "^5.4.0"
   },
   "browserslist": {
     "production": [
@@ -61,20 +45,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.31.0",
-    "@types/react": "^19.1.8",
-    "eslint": "^9.31.0",
-    "eslint-import-resolver-typescript": "^4.4.4",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-react": "^7.37.5",
-    "globals": "^16.3.0",
-    "typescript-eslint": "^8.37.0"
-  },
-  "typescript": {
-    "compilerOptions": {
-      "esModuleInterop": true
-    }
   }
 }

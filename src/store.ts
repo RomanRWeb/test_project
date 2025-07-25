@@ -1,6 +1,6 @@
 import {configureStore} from '@reduxjs/toolkit'
-import {tasksSlice} from "./redux/slices/tasksSlice.ts";
-import {authSlice} from "./redux/slices/authSlice.ts";
+import {tasksSlice} from "./redux/slices/tasksSlice";
+import {authSlice} from "./redux/slices/authSlice";
 
 
 const store = configureStore({
