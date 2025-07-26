@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {BrowserRouter as Router, Link, Route, Routes} from 'react-router-dom';
 import HomePage from './pages/Home/HomePage';
 import AboutPage from './pages/About/AboutPage';
@@ -9,8 +9,9 @@ import LoginPage from "./pages/Login/LoginPage";
 import "./normalize.css"
 import "./App.css"
 import ThemeSwitcher from "./components/ThemeSwitcher/ThemeSwitcher";
-import {ConfigProvider} from "antd";
-import { theme as antdTheme } from 'antd';
+import {ConfigProvider, ThemeConfig} from "antd";
+import getDesignToken from "antd/es/theme/getDesignToken";
+import {darkThemeConfig, lightThemeConfig} from "./types";
 
 export const ThemeContext = React.createContext({
     darkTheme: false,
@@ -18,55 +19,76 @@ export const ThemeContext = React.createContext({
     },
 });
 
-const darkThemeConfig = {
-    token: {
-        colorPrimary: '#001122',
-        colorBgContainer: '#004f97',
-        colorBorder: '#ffffff',
-        colorTextBase: '#ffffff',
-        colorTextPlaceholder: '#c8c8c8',
-        colorBgContainerDisabled: '#001a33',
-        colorTextQuaternary: '#ffffff',
-        myBgColor: '#000000',
-    },
-};
-
-const lightThemeConfig = {
-    token: {
-        colorPrimary: '#0478e4',
-        colorBgContainer: '#fdfdfd',
-        colorBorder: '#d9d9d9',
-        colorTextBase: '#000000',
-        myBgColor: '#ffffff',
-    },
-};
-
 function App() {
 
     const [darkTheme, setDarkTheme] = useState(false);
 
     const toggleTheme = useCallback(() => {
         setDarkTheme(!darkTheme);
+        localStorage.setItem('preferUserTheme', darkTheme ? 'light' : 'dark');
     }, [darkTheme]);
 
     const themeValue = {darkTheme, toggleTheme};
     //const {darkTheme, toggleTheme} = useContext(ThemeContext);
-    const { useToken } = antdTheme;
-    const { token: theme } = useToken();
 
-    const navStyle = {
-        borderBottom: `3px solid ${theme.colorPrimary}`,
-        borderInline: `3px solid ${theme.colorPrimary}`,
-    };
+    const DarkToken = getDesignToken(darkThemeConfig);
+    const LightToken = getDesignToken(lightThemeConfig);
+
+    // const navStyleDark = {
+    //     borderBottom: `3px solid ${DarkToken.colorTextBase}`,
+    //     borderInline: `3px solid ${DarkToken.colorTextBase}`,
+    // };
+    //
+    // const navStyleLight = {
+    //     borderBottom: `3px solid ${LightToken.colorTextBase}`,
+    //     borderInline: `3px solid ${LightToken.colorTextBase}`,
+    // };
+
+    const themeStyle = {
+        dark: {
+            backgroundColor: DarkToken.colorBgContainer,
+            borderBottom: `1px solid ${DarkToken.colorTextBase}`,
+            borderInline: `1px solid ${DarkToken.colorTextBase}`,
+        },
+        light: {
+            backgroundColor: LightToken.colorBgContainer,
+            borderBottom: `1px solid ${LightToken.colorTextBase}`,
+            borderInline: `1px solid ${LightToken.colorTextBase}`,
+        },
+    }
+
+    const bgStyle = {
+        dark: {
+            backgroundColor: DarkToken.colorBgSolid,
+            color: DarkToken.colorTextBase,
+        },
+        light: {
+            backgroundColor: LightToken.colorBgSolid,
+            color: LightToken.colorTextBase,
+        },
+    }
+
+    useEffect(() => {
+        let preferTheme = localStorage.getItem('preferUserTheme');
+        if (preferTheme === null) {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                preferTheme = 'dark';
+            } else {
+                preferTheme = 'light';
+            }
+        }
+        setDarkTheme(preferTheme === 'dark');
+        console.log('preferTheme', JSON.stringify(preferTheme, null, 2));
+    }, []);
 
     return (
         <Provider store={store}>
             <Router>
                 <ThemeContext.Provider value={themeValue}>
                     <ConfigProvider theme={darkTheme ? darkThemeConfig : lightThemeConfig}>
-                        <main className={"App"} style={{ backgroundColor: theme.myBgColor}}>
-                            <header className="App-header" style={navStyle}>
-                                <nav className={"App-nav"} >
+                        <main className={"App"} style={darkTheme ? bgStyle.dark : bgStyle.light}>
+                            <header className="App-header" style={darkTheme ? themeStyle.dark : themeStyle.light}>
+                                <nav className={"App-nav"}>
                                     <div>
                                         <Link to="/about">О сайте</Link>
                                         <Link to="/home">Главная</Link>

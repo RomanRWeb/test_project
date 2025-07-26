@@ -15,6 +15,7 @@ interface InputFieldProps {
     style?: React.CSSProperties
     count?: boolean;
     countMax?: number;
+    id?: string;
 }
 
 const CustomInputField: React.FC<InputFieldProps> = ({

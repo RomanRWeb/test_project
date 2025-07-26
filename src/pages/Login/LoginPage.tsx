@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useContext, useEffect, useState} from "react";
 import {RootState, AppDispatch} from '../../store';
 import "./LoginPage.css"
 import {unwrapResult} from "@reduxjs/toolkit";
@@ -9,6 +9,9 @@ import {setUserData} from "../../redux/slices/authSlice";
 import {AuthState, UserData} from "../../types";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import {CustomInputField, CustomPasswordField} from "../../components/CustomInputField/CustomInputField";
+import {Card, Spin, Typography} from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
+import {ThemeContext} from "../../App";
 
 const LoginPage: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
@@ -19,6 +22,8 @@ const LoginPage: React.FC = () => {
     const [passwordRepeat, setPasswordRepeat] = useState('');
     const [loginError, setLoginError] = useState('');
     const [register, setRegister] = useState(false);
+
+    const {Text, Title} = Typography;
 
     useEffect(() => {
         let loginErr = "";
@@ -96,80 +101,85 @@ const LoginPage: React.FC = () => {
         }
     }, [loginError, register, handleLogin, handleRegister])
 
+    const {darkTheme, toggleTheme} = useContext(ThemeContext);
+
     return (
         <div className={"LoginPage"}>
             {authState.user ? (
-                <div>
-                    <p>Привет, {authState.user.email}!</p>
+                <Card className={"HelloCard"} style={{textAlign: 'center'}}>
+                    <Title level={3}>Привет, {authState.user.email}!</Title>
+                    <br></br>
                     <CustomButton onClick={handleLogout}>
                         Выйти
                     </CustomButton>
-                </div>
+                </Card>
             ) : (
-                <form className={"LoginPage-form"}>
-                    <span className={"big-text"}>{!register ? "Вход" : "Регистрация"}</span>
-                    <span className={"error-message"}>{loginError}</span>
-                    {authState.isLoading && <p className={"loader"}>Загрузка...</p>}
-                    <CustomInputField
-                        placeholder={"login"}
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
-                    {/*<input*/}
-                    {/*    id="username"*/}
-                    {/*    type="text"*/}
-                    {/*    placeholder="Имя пользователя"*/}
-                    {/*    value={username}*/}
-                    {/*    onChange={(e) => setUsername(e.target.value)}*/}
-                    {/*/>*/}
-                    <CustomPasswordField
-                        value={password}
-                        placeholder={"password"}
-                        count={true}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    {/*<input*/}
-                    {/*    id="password"*/}
-                    {/*    type="password"*/}
-                    {/*    placeholder="Пароль"*/}
-                    {/*    value={password}*/}
-                    {/*    required*/}
-                    {/*    minLength={3}*/}
-                    {/*    onChange={(e) => setPassword(e.target.value)}*/}
-                    {/*/>*/}
-                    {register ?
-                        <CustomPasswordField
-                            value={passwordRepeat}
-                            placeholder={"Repeat password "}
-                            count={true}
-                            onChange={(e) => setPasswordRepeat(e.target.value)}
+                <Card className={"LoginCard"}>
+                    <form className={"LoginPage-form"}>
+                        <Title level={2} className={"big-text"}>{!register ? "Вход" : "Регистрация"}</Title>
+                        {loginError === ''? <Text type="danger">{loginError}</Text> : null}
+                        {authState.isLoading && <Spin indicator={<LoadingOutlined spin />} style={darkTheme? {backgroundColor: '#ffffff'} : {backgroundColor: '#000000'}} />}
+                        <CustomInputField
+                            placeholder={"login"}
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                         />
-                        // <input
-                        //     id="passwordRepeat"
-                        //     type="password"
-                        //     placeholder="Повторите пароль"
-                        //     value={passwordRepeat}
-                        //     required
-                        //     minLength={3}
-                        //     onChange={(e) => setPasswordRepeat(e.target.value)}
-                        // />
-                        : null}
-                    <CustomButton onClick={handleClick}
-                                  disabled={authState.isLoading || username === '' || password === ''}>
-                        {register ? "Зарегистироваться" : "Войти"}
-                    </CustomButton>
-                    <div>
-                        <span>{!register ? "Нет аккаунта?" : "Уже есть аккаунт?"}</span>
-                        <CustomButton type={"link"} onClick={handleSwitchClick}
-                                      style={{border: "none", height: "1rem", padding: "1ch"}}>
-                            {!register ? "Зарегистироваться" : "Войти"}
+                        {/*<input*/}
+                        {/*    id="username"*/}
+                        {/*    type="text"*/}
+                        {/*    placeholder="Имя пользователя"*/}
+                        {/*    value={username}*/}
+                        {/*    onChange={(e) => setUsername(e.target.value)}*/}
+                        {/*/>*/}
+                        <CustomPasswordField
+                            value={password}
+                            placeholder={"password"}
+                            count={true}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        {/*<input*/}
+                        {/*    id="password"*/}
+                        {/*    type="password"*/}
+                        {/*    placeholder="Пароль"*/}
+                        {/*    value={password}*/}
+                        {/*    required*/}
+                        {/*    minLength={3}*/}
+                        {/*    onChange={(e) => setPassword(e.target.value)}*/}
+                        {/*/>*/}
+                        {register ?
+                            <CustomPasswordField
+                                value={passwordRepeat}
+                                placeholder={"Repeat password "}
+                                count={true}
+                                onChange={(e) => setPasswordRepeat(e.target.value)}
+                            />
+                            // <input
+                            //     id="passwordRepeat"
+                            //     type="password"
+                            //     placeholder="Повторите пароль"
+                            //     value={passwordRepeat}
+                            //     required
+                            //     minLength={3}
+                            //     onChange={(e) => setPasswordRepeat(e.target.value)}
+                            // />
+                            : null}
+                        <CustomButton onClick={handleClick}
+                                      disabled={authState.isLoading || username === '' || password === ''}>
+                            {register ? "Зарегистироваться" : "Войти"}
                         </CustomButton>
-                        {/*<button type="button" className={"RegisterButton"}*/}
-                        {/*        onClick={handleSwitchClick}>*/}
-                        {/*    {!register ? "Зарегистироваться" : "Войти"}*/}
-                        {/*</button>*/}
-                    </div>
-                </form>
+                        <div>
+                            <Text>{!register ? "Нет аккаунта?" : "Уже есть аккаунт?"}</Text>
+                            <CustomButton type={"link"} onClick={handleSwitchClick}
+                                          style={{border: "none", height: "1rem", padding: "1ch"}}>
+                                {!register ? "Зарегистироваться" : "Войти"}
+                            </CustomButton>
+                            {/*<button type="button" className={"RegisterButton"}*/}
+                            {/*        onClick={handleSwitchClick}>*/}
+                            {/*    {!register ? "Зарегистироваться" : "Войти"}*/}
+                            {/*</button>*/}
+                        </div>
+                    </form>
+                </Card>
             )}
         </div>
     )

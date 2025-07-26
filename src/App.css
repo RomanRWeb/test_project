@@ -1,7 +1,7 @@
 @import url("./constants/variables.css");
 
 main {
-    color: var(--textColor);
+    min-height: 100lvh;
 }
 
 .App-header {
@@ -17,7 +17,7 @@ main {
     /*border-inline: 3px solid var(--borderColor);*/
 }
 
-@media (max-width: 900px) {
+@media screen and (max-width: 900px) {
     .App-header {
         width: auto;
         margin-inline: 1%;
@@ -48,6 +48,16 @@ main {
 
 .App-header a{
     text-decoration: none;
-    color: black;
     margin-inline: 1rem;
+}
+
+
+@media screen and (max-width: 400px) {
+    .App-header a{
+        margin-inline: 5px;
+    }
+}
+
+.App-header a:-webkit-any-link {
+    color: inherit;
 }
