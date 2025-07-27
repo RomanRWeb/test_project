@@ -33,7 +33,7 @@ export interface ReduxType {
 
 export const darkThemeConfig: ThemeConfig = {
     token: {
-        colorPrimary: '#292929',
+        colorPrimary: '#fdfdfd',
         colorBgContainer: '#323232',
         colorBorder: '#ffffff',
         colorTextBase: '#ffffff',
@@ -46,13 +46,13 @@ export const darkThemeConfig: ThemeConfig = {
     components: {
         Input: {
             hoverBorderColor: '#808080'
-        }
+        },
     }
 };
 
 export const lightThemeConfig: ThemeConfig = {
     token: {
-        colorPrimary: '#0478e4',
+        colorPrimary: '#2c2c2c',
         colorBgContainer: '#fdfdfd',
         colorBorder: '#d9d9d9',
         colorTextBase: '#000000',

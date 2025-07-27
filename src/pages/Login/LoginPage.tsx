@@ -11,7 +11,6 @@ import CustomButton from "../../components/CustomButton/CustomButton";
 import {CustomInputField, CustomPasswordField} from "../../components/CustomInputField/CustomInputField";
 import {Card, Spin, Typography} from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import {ThemeContext} from "../../App";
 
 const LoginPage: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
@@ -101,8 +100,6 @@ const LoginPage: React.FC = () => {
         }
     }, [loginError, register, handleLogin, handleRegister])
 
-    const {darkTheme, toggleTheme} = useContext(ThemeContext);
-
     return (
         <div className={"LoginPage"}>
             {authState.user ? (
@@ -118,7 +115,7 @@ const LoginPage: React.FC = () => {
                     <form className={"LoginPage-form"}>
                         <Title level={2} className={"big-text"}>{!register ? "Вход" : "Регистрация"}</Title>
                         {loginError === ''? <Text type="danger">{loginError}</Text> : null}
-                        {authState.isLoading && <Spin indicator={<LoadingOutlined spin />} style={darkTheme? {backgroundColor: '#ffffff'} : {backgroundColor: '#000000'}} />}
+                        {authState.isLoading && <Spin indicator={<LoadingOutlined spin />}/>}
                         <CustomInputField
                             placeholder={"login"}
                             value={username}
