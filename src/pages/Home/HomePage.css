@@ -1,0 +1,13 @@
+.Home-page{
+    width: clamp(200px, 80%, 1600px);
+    margin-inline: auto;
+    min-height: calc(100vh - 50px);
+    padding: 1rem;
+}
+
+@media screen and (max-width: 900px) {
+    .Home-page {
+        width: auto;
+        margin-inline: 1%;
+    }
+}

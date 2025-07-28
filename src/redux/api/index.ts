@@ -1,4 +1,4 @@
-import {UserData} from "../../types";
+import {Project, UserData} from "../../types";
 
 export const fetchByID = async (userData: UserData) => {
     const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users/`);
@@ -17,6 +17,45 @@ export const fetchNewUser = async (userData: UserData) => {
         method: 'POST',
         headers: {'content-type': 'application/json'},
         body: JSON.stringify(userData)
+    })
+}
+
+export const fetchEditUser = async (userData: UserData) => {
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users/${userData.id}`);
+
+    return fetch(url, {
+        method: 'PUT',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({projectsList: userData.projectsList})
+    })
+}
+
+export const fetchUserProject = async (projectId: string) => {
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projectId}`);
+
+    return fetch(url, {
+        method: 'GET',
+        headers: {'content-type': 'application/json'},
+    })
+}
+
+export const fetchEditProject = async (project: Project) => {
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${project.id}`);
+
+    return fetch(url, {
+        method: 'PUT',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({ name: project.name }),
+    })
+}
+
+export const fetchNewProject = async (project: Project) => {
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/`);
+
+    return fetch(url, {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify(project)
     })
 }
 

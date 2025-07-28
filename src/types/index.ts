@@ -1,14 +1,33 @@
 import {ReactNode} from "react";
 import {ThemeConfig} from "antd";
 
+export interface UiState{
+    currentProject: string;
+    currentCommand: string;
+}
+
 export interface UserData {
     id: string,
     email: string,
     password: string,
+    projectsList: string[],
 }
 
 export interface AuthState {
     user: UserData | null;
+    isLoading: boolean;
+    error: unknown | null | ReactNode | object;
+    projectsList: string[];
+}
+
+export interface Project {
+    id: string,
+    creatorId: string,
+    name: string,
+}
+
+export interface ProjectsState {
+    projects: Project[];
     isLoading: boolean;
     error: unknown | null | ReactNode | object;
 }
@@ -29,6 +48,8 @@ export interface TasksState {
 export interface ReduxType {
     auth: AuthState;
     tasks: TasksState;
+    projects: ProjectsState;
+    ui: UiState;
 }
 
 export const darkThemeConfig: ThemeConfig = {
@@ -47,6 +68,12 @@ export const darkThemeConfig: ThemeConfig = {
         Input: {
             hoverBorderColor: '#808080'
         },
+        Button: {
+            defaultHoverBg: '#6a6a6a',
+        },
+        Message: {
+            contentBg: '#323232',
+        }
     }
 };
 

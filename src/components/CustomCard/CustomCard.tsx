@@ -10,7 +10,7 @@ interface CustomCardProps {
     actions?: React.ReactNode[];
     type?: boolean;
     variant?: "outlined" | "borderless";
-    hoverable: boolean;
+    hoverable?: boolean;
     extra?: React.ReactNode
 }
 

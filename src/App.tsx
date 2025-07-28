@@ -9,7 +9,7 @@ import LoginPage from "./pages/Login/LoginPage";
 import "./normalize.css"
 import "./App.css"
 import ThemeSwitcher from "./components/ThemeSwitcher/ThemeSwitcher";
-import {ConfigProvider, ThemeConfig} from "antd";
+import {ConfigProvider, message, ThemeConfig} from "antd";
 import getDesignToken from "antd/es/theme/getDesignToken";
 import {darkThemeConfig, lightThemeConfig} from "./types";
 
@@ -33,16 +33,6 @@ function App() {
 
     const DarkToken = getDesignToken(darkThemeConfig);
     const LightToken = getDesignToken(lightThemeConfig);
-
-    // const navStyleDark = {
-    //     borderBottom: `3px solid ${DarkToken.colorTextBase}`,
-    //     borderInline: `3px solid ${DarkToken.colorTextBase}`,
-    // };
-    //
-    // const navStyleLight = {
-    //     borderBottom: `3px solid ${LightToken.colorTextBase}`,
-    //     borderInline: `3px solid ${LightToken.colorTextBase}`,
-    // };
 
     const themeStyle = {
         dark: {

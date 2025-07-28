@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {useCallback, useContext, useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {RootState, AppDispatch} from '../../store';
 import "./LoginPage.css"
 import {unwrapResult} from "@reduxjs/toolkit";
@@ -9,8 +9,9 @@ import {setUserData} from "../../redux/slices/authSlice";
 import {AuthState, UserData} from "../../types";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import {CustomInputField, CustomPasswordField} from "../../components/CustomInputField/CustomInputField";
-import {Card, Spin, Typography} from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
+import {Card, Spin, message, Typography} from 'antd';
+import {LoadingOutlined} from '@ant-design/icons';
+import {useNavigate} from "react-router-dom";
 
 const LoginPage: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
@@ -21,17 +22,21 @@ const LoginPage: React.FC = () => {
     const [passwordRepeat, setPasswordRepeat] = useState('');
     const [loginError, setLoginError] = useState('');
     const [register, setRegister] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const {Text, Title} = Typography;
+    const [messageApi, contextHolder] = message.useMessage();
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         let loginErr = "";
         if (register) {
             if (password != passwordRepeat) {
-                loginErr = "Passwords don't match";
+                loginErr = "Пароли не совпадают";
             }
             if (password.length < 3) {
-                loginErr = "Passwords too short";
+                loginErr = "Пароль слишком короткий";
             }
         }
         setLoginError(loginErr);
@@ -39,48 +44,45 @@ const LoginPage: React.FC = () => {
         console.log('passwordRepeat', JSON.stringify(passwordRepeat, null, 2));
     }, [password, passwordRepeat, register])
 
+    useEffect(() => {
+        setLoading(authState.isLoading)
+        console.log('authState.isLoading', JSON.stringify(authState.isLoading, null, 2));
+    }, [authState.isLoading]);
+
     const handleLogin = () => {
         // setLoading(true)
-        const userData: UserData = {id: "", email: username, password: password};
+        const userData: UserData = {id: "", email: username, password: password, projectsList: []};
         console.log('userData', JSON.stringify(userData, null, 2));
         dispatch(fetchUserByID(userData)).then(unwrapResult).then((result) => {
             console.log('--someVal', JSON.stringify(result, null, 2));
-            if (result === null) setLoginError("password dont match")
+            if (result === null) {
+                messageApi.error('Пользователя с таким логином и паролем не сущестует, проверьте корректность введенных данных');
+            } else {
+                navigate('/home');
+            }
             // setLoading(false);
         }).catch((err) => {
-            console.log('--err', JSON.stringify(err, null, 2));
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            alert(authState.error.error ? authState.error.error : "Something went wrong");
+            console.log('--err', JSON.stringify(err, null, 3));
+            messageApi.error(`Пользователя с таким логином и паролем не сущестует, проверьте корректность введенных данных (${err.error})`);
         });
         setPassword('');
         // dispatch(logout());
     }
 
     const handleRegister = () => {
-        const userData: UserData = {id: "", email: username, password: password};
+        const userData: UserData = {id: "", email: username, password: password, projectsList: []};
         if (password == passwordRepeat) {
             dispatch(createNewUser(userData)).then(unwrapResult).then((result) => {
                 console.log('--someVal', JSON.stringify(result, null, 2));
+                navigate('/home');
             }).catch((err) => {
                 console.log('--err', JSON.stringify(err, null, 2));
-                alert(err)
+                messageApi.error(`Что-то пошло не так`);
             });
         } else {
             setLoginError('passwords dont match')
         }
     }
-
-    // const onClick = () => {
-    //   dispatch(fetchUserById(userId))
-    //     .then(unwrapResult)
-    //     .then((originalPromiseResult) => {
-    //       // handle result here
-    //     })
-    //     .catch((rejectedValueOrSerializedError) => {
-    //       // handle result here
-    //     })
-    // }
 
     const handleLogout = useCallback(() => {
         dispatch(setUserData(null));
@@ -102,6 +104,7 @@ const LoginPage: React.FC = () => {
 
     return (
         <div className={"LoginPage"}>
+            {contextHolder}
             {authState.user ? (
                 <Card className={"HelloCard"} style={{textAlign: 'center'}}>
                     <Title level={3}>Привет, {authState.user.email}!</Title>
@@ -114,12 +117,13 @@ const LoginPage: React.FC = () => {
                 <Card className={"LoginCard"}>
                     <form className={"LoginPage-form"}>
                         <Title level={2} className={"big-text"}>{!register ? "Вход" : "Регистрация"}</Title>
-                        {loginError === ''? <Text type="danger">{loginError}</Text> : null}
-                        {authState.isLoading && <Spin indicator={<LoadingOutlined spin />}/>}
+                        {loginError !== '' ? <Text type="danger">{loginError}</Text> : null}
+                        {authState.isLoading && <Spin indicator={<LoadingOutlined spin/>}/>}
                         <CustomInputField
                             placeholder={"login"}
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
+                            disabled={loading}
                         />
                         {/*<input*/}
                         {/*    id="username"*/}
@@ -133,6 +137,7 @@ const LoginPage: React.FC = () => {
                             placeholder={"password"}
                             count={true}
                             onChange={(e) => setPassword(e.target.value)}
+                            disabled={loading}
                         />
                         {/*<input*/}
                         {/*    id="password"*/}
@@ -149,6 +154,7 @@ const LoginPage: React.FC = () => {
                                 placeholder={"Repeat password "}
                                 count={true}
                                 onChange={(e) => setPasswordRepeat(e.target.value)}
+                                disabled={loading}
                             />
                             // <input
                             //     id="passwordRepeat"
@@ -161,7 +167,7 @@ const LoginPage: React.FC = () => {
                             // />
                             : null}
                         <CustomButton onClick={handleClick}
-                                      disabled={authState.isLoading || username === '' || password === ''}>
+                                      disabled={authState.isLoading || username === '' || loginError !== ''}>
                             {register ? "Зарегистироваться" : "Войти"}
                         </CustomButton>
                         <div>

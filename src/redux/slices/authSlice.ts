@@ -5,7 +5,8 @@ import {createNewUser, fetchUserByID} from "../thunks/auth";
 const initialSliceState: AuthState = {
     user: null,
     isLoading: false,
-    error: null
+    error: {},
+    projectsList: []
 }
 
 export const authSlice = createSlice({
@@ -14,6 +15,9 @@ export const authSlice = createSlice({
     reducers: {
         setUserData(state, {payload}: { payload: UserData }) {
             state.user = payload;
+        },
+        addProjectToProjectList(state, {payload}: { payload: string }) {
+            state.projectsList.push(payload);
         }
     },
     extraReducers: (builder) => {
@@ -50,4 +54,4 @@ export const authSlice = createSlice({
     }
 })
 
-export const {setUserData} = authSlice.actions;
+export const {setUserData, addProjectToProjectList} = authSlice.actions;
