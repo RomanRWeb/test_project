@@ -55,7 +55,7 @@ export const fetchNewProject = async (project: Project) => {
     return fetch(url, {
         method: 'POST',
         headers: {'content-type': 'application/json'},
-        body: JSON.stringify(project)
+        body: JSON.stringify({name: project.name})
     })
 }
 

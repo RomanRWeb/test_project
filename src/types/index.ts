@@ -52,6 +52,11 @@ export interface ReduxType {
     ui: UiState;
 }
 
+export interface ProjectCard {
+    reloadFunc: () => void;
+    project: Project;
+}
+
 export const darkThemeConfig: ThemeConfig = {
     token: {
         colorPrimary: '#fdfdfd',
@@ -63,6 +68,8 @@ export const darkThemeConfig: ThemeConfig = {
         colorTextQuaternary: '#808080',
         colorBgSolid: '#1b1b1b',
         colorBgSolidHover: '#0165c1',
+        colorBgSpotlight: '#808080',
+
     },
     components: {
         Input: {

@@ -10,7 +10,6 @@ import {setCurrentProject} from "../../redux/slices/uiSlice";
 import ProjectOverviewCard from "./components/ProjectOverviewCard/ProjectOverviewCard";
 import {createNewProject, fetchProject} from "../../redux/thunks/projects";
 import {unwrapResult} from "@reduxjs/toolkit";
-import {setProjects} from "../../redux/slices/projectSlice";
 
 const HomePage: React.FC = () => {
 
@@ -20,11 +19,11 @@ const HomePage: React.FC = () => {
     const projectState = useSelector((state: RootState) => state.projects)
 
     const [items, setItems] = useState(projectState.projects);
+    const [activeKey, setActiveKey] = useState(null);
     const [messageApi, contextHolder] = message.useMessage();
 
-    useEffect(() => {
-        setItems(projectState.projects);
-    }, [projectState.projects]);
+    const initProjectState: Project = {id: uiState.currentProject, name: 'Placeholder', creatorId: ''}
+    const [activeProject, setActiveProject] = useState<Project>(initProjectState);
 
     useEffect(() => {
         let currentProject = uiState.currentProject;
@@ -47,6 +46,45 @@ const HomePage: React.FC = () => {
         }
     }, []);
 
+    useEffect(() => {
+        setItems(projectState.projects);
+    }, [projectState.projects]);
+
+    useEffect(() => {
+        setActiveKey(uiState.currentProject)
+    }, [uiState.currentProject]);
+
+    useEffect(() => {
+        let elFromStore: Project = projectState.projects.find(el => el.id === uiState.currentProject)
+        console.log('elFromStore', JSON.stringify(elFromStore, null, 2));
+        if (elFromStore?.creatorId === '') {
+            dispatch(fetchProject(elFromStore.id)).then(unwrapResult).then((result) => {
+                console.log('result', JSON.stringify(result, null, 2));
+                if (result !== null) {
+                    elFromStore = result
+                } else {
+                    elFromStore = {id: uiState.currentProject, name: 'Placeholder', creatorId: ''};
+                    messageApi.error("Не получилось загрузить проект");
+                }
+                console.log('elFromStore', JSON.stringify(elFromStore, null, 2));
+                setActiveProject(elFromStore)
+            })
+        } else {
+            setActiveProject(elFromStore)
+        }
+    }, [uiState.currentProject]);
+
+    const reloadProject = useCallback(()=>{
+        dispatch(fetchProject(uiState.currentProject)).then(unwrapResult).then((result) => {
+            if (result !== null){
+                setActiveProject(result)
+            } else {
+                messageApi.error("Не получилось загрузить проект")
+            }
+            console.log('result', JSON.stringify(result, null, 2));
+        })
+    }, [uiState.currentProject])
+
     const addProject = useCallback((project: Project) => {
         console.log('project', JSON.stringify(project, null, 2));
         const newActiveKey = `newProject${project.id}`;
@@ -56,6 +94,7 @@ const HomePage: React.FC = () => {
                 const newPanes = [...items];
                 newPanes.push({id: project.id, name: `newProject ${project.id}`, creatorId: newActiveKey});
                 setItems(newPanes);
+                setActiveKey(result.id)
             } else {
                 messageApi.error("Не получилось создать проект");
             }
@@ -81,12 +120,13 @@ const HomePage: React.FC = () => {
                     type="editable-card"
                     onEdit={onEdit}
                     onChange={onChange}
+                    activeKey={activeKey}
                     items={items.map((project) => {
                         const id = project.id;
                         return {
                             label: `${project.name}`,
                             key: id,
-                            children: <ProjectOverviewCard/>,
+                            children: <ProjectOverviewCard project={activeProject} reloadFunc = {reloadProject}/>,
                             closable: false,
                         };
                     })}/>

@@ -1,7 +1,7 @@
 import {createAction, createAsyncThunk, unwrapResult} from "@reduxjs/toolkit";
 import {Project, ReduxType, UserData} from "../../types";
 import {addProject, setProjects} from "../slices/projectSlice";
-import {fetchNewProject, fetchUserProject} from "../api";
+import {fetchEditProject, fetchNewProject, fetchUserProject} from "../api";
 import {editUser} from "./auth";
 import {addProjectToProjectList} from "../slices/authSlice";
 
@@ -39,13 +39,15 @@ export const createNewProject = createAsyncThunk(
     'projects/createProject',
     async (project: Project, {dispatch, rejectWithValue, getState}) => {
         const state = getState() as ReduxType;
+        console.log('state', JSON.stringify(state, null, 2));
         try {
             const result = await fetchNewProject(project);
             if (result.ok) {
                 const project: Project = await result.json();
                 console.log('project', JSON.stringify(project, null, 2));
                 console.log('state.projects.projects', JSON.stringify(state.projects.projects, null, 2));
-                const newProjectList: string[] = state.auth.projectsList.concat(project.id);
+                let newProjectList: string[] = state.auth.user.projectsList;
+                newProjectList = newProjectList.concat(project.id)
                 console.log('New project planned to create: ', JSON.stringify(project, null, 2));
                 dispatch(addProjectToProjectList(project.id));
                 dispatch(editUser({
@@ -72,14 +74,16 @@ export const createNewProject = createAsyncThunk(
 export const editProject = createAsyncThunk(
     'projects/redactProject',
     async (project: Project, {dispatch, rejectWithValue, getState}) => {
+        console.log('project', JSON.stringify(project, null, 2));
         try {
-            // const result = await fetchEditProject(project);
-            // if (result.ok) {
-            //     const project: Project = await result.json();
-            //     dispatch(addProject(project));
-            // } else {
-            //     rejectWithValue({error: 'Unable to create new project'});
-            // }
+            const result = await fetchEditProject(project);
+            if (result.ok) {
+                const projectRedacted: Project = await result.json();
+                console.log('returned project', JSON.stringify(project, null, 2));
+                return projectRedacted
+            } else {
+                return rejectWithValue({error: 'Unable to create new project'});
+            }
         } catch (error) {
             createAction(error)
         }
