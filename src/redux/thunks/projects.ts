@@ -15,8 +15,7 @@ export const fetchProject = createAsyncThunk(
             const result = await fetchUserProject(id);
             if (result.ok) {
                 const project: Project = await result.json();
-                console.log('project', JSON.stringify(project, null, 2));
-                console.log('state.projects.projects', JSON.stringify(state.projects.projects, null, 2));
+                console.log('project fetched: ', JSON.stringify(project, null, 2));
                 // const index: number = state.projects.projects.findIndex(el => el.id === project.id)
                 // console.log('index', JSON.stringify(index, null, 2));
                 // const newProjectList = state.projects.projects.splice(index, 1, project);
@@ -45,7 +44,6 @@ export const createNewProject = createAsyncThunk(
             if (result.ok) {
                 const project: Project = await result.json();
                 console.log('project', JSON.stringify(project, null, 2));
-                console.log('state.projects.projects', JSON.stringify(state.projects.projects, null, 2));
                 let newProjectList: string[] = state.auth.user.projectsList;
                 newProjectList = newProjectList.concat(project.id)
                 console.log('New project planned to create: ', JSON.stringify(project, null, 2));

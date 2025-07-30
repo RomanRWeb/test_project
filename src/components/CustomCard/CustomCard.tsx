@@ -11,7 +11,8 @@ interface CustomCardProps {
     type?: boolean;
     variant?: "outlined" | "borderless";
     hoverable?: boolean;
-    extra?: React.ReactNode
+    extra?: React.ReactNode,
+    onCardClickFunc?: () => void;
 }
 
 const CustomCard: React.FC<CustomCardProps> = ({
@@ -25,6 +26,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
                                                    variant = "outlined",
                                                    hoverable = true,
                                                    extra,
+                                                   onCardClickFunc,
                                                }: CustomCardProps) => {
     return (
         <Card
@@ -37,6 +39,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
             variant={variant}
             hoverable={hoverable}
             extra={extra}
+            onClick={onCardClickFunc}
         >
             {children}
         </Card>

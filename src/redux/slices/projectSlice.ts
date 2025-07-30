@@ -16,7 +16,6 @@ export const projectSlice = createSlice({
         setProjects: (state, {payload}: { payload: Project[] }) => {
             state.projects = payload;
         },
-
         addProject(state, {payload}: { payload: Project }) {
             state.projects = state.projects.concat(payload);
         }

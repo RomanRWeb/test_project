@@ -45,7 +45,7 @@ export const fetchEditProject = async (project: Project) => {
     return fetch(url, {
         method: 'PUT',
         headers: {'content-type': 'application/json'},
-        body: JSON.stringify({ name: project.name }),
+        body: JSON.stringify({name: project.name}),
     })
 }
 
@@ -59,8 +59,8 @@ export const fetchNewProject = async (project: Project) => {
     })
 }
 
-export const fetchTasks = async (userData: UserData) => {
-    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users/${userData.id}/tasks`);
+export const fetchCurrentCommands = async (projectId: string) => {
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projectId}/commands`);
 
     return fetch(url, {
         method: 'GET',
@@ -68,7 +68,24 @@ export const fetchTasks = async (userData: UserData) => {
     })
 }
 
-export const fetchNewTasks = async (userData: UserData, { name: taskName, description: taskDescription} : {name: string, description:string}) => {
+export const fetchTasks = async ({projId, commandId, filter}: {
+    projId: string,
+    commandId: string,
+    filter: string
+}) => {
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projId}/commands/${commandId}/tasks`);
+    url.searchParams.append('state', filter);
+
+    return fetch(url, {
+        method: 'GET',
+        headers: {'content-type': 'application/json'},
+    })
+}
+
+export const fetchNewTasks = async (userData: UserData, {name: taskName, description: taskDescription}: {
+    name: string,
+    description: string
+}) => {
     const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users/${userData.id}/tasks`);
 
     return fetch(url, {
@@ -78,7 +95,10 @@ export const fetchNewTasks = async (userData: UserData, { name: taskName, descri
     })
 }
 
-export const fetchEditTasks = async (userData: UserData, { name: taskName, description: taskDescription} : {name: string, description:string}) => {
+export const fetchEditTasks = async (userData: UserData, {name: taskName, description: taskDescription}: {
+    name: string,
+    description: string
+}) => {
     const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users/${userData.id}/tasks`);
 
     return fetch(url, {

@@ -1,16 +1,12 @@
 import {ReactNode} from "react";
 import {ThemeConfig} from "antd";
 
-export interface UiState{
-    currentProject: string;
-    currentCommand: string;
-}
-
-export interface UserData {
-    id: string,
-    email: string,
-    password: string,
-    projectsList: string[],
+export interface ReduxType {
+    auth: AuthState;
+    projects: ProjectsState;
+    commands: CommandsState;
+    tasks: TasksState;
+    ui: UiState;
 }
 
 export interface AuthState {
@@ -18,6 +14,13 @@ export interface AuthState {
     isLoading: boolean;
     error: unknown | null | ReactNode | object;
     projectsList: string[];
+}
+
+export interface UserData {
+    id: string,
+    email: string,
+    password: string,
+    projectsList: string[],
 }
 
 export interface Project {
@@ -32,11 +35,24 @@ export interface ProjectsState {
     error: unknown | null | ReactNode | object;
 }
 
+export interface Command {
+    id: string,
+    name: string,
+    projectId: string
+    userList: string[],
+}
+
+export interface CommandsState {
+    commands: Command[];
+    isLoading: boolean;
+    error: unknown | null | ReactNode | object;
+}
+
 export interface Task {
     id: string,
-    userID: string,
     name: string,
     description: string,
+    state: "complete" | "active" | "todo",
 }
 
 export interface TasksState {
@@ -45,16 +61,16 @@ export interface TasksState {
     error: unknown | null | ReactNode | object;
 }
 
-export interface ReduxType {
-    auth: AuthState;
-    tasks: TasksState;
-    projects: ProjectsState;
-    ui: UiState;
+export interface UiState{
+    currentProject: string;
+    currentCommand: string;
 }
 
 export interface ProjectCard {
     reloadFunc: () => void;
     project: Project;
+    commands: Command[];
+    tasks: Task[];
 }
 
 export const darkThemeConfig: ThemeConfig = {

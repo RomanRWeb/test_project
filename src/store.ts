@@ -3,6 +3,7 @@ import {tasksSlice} from "./redux/slices/tasksSlice";
 import {authSlice} from "./redux/slices/authSlice";
 import {projectSlice} from "./redux/slices/projectSlice";
 import {uiSlice} from "./redux/slices/uiSlice";
+import {commandsSlice} from "./redux/slices/commandsSlice";
 
 
 const store = configureStore({
@@ -10,6 +11,7 @@ const store = configureStore({
         auth: authSlice.reducer,
         tasks: tasksSlice.reducer,
         projects: projectSlice.reducer,
+        commands: commandsSlice.reducer,
         ui: uiSlice.reducer,
     },
 })

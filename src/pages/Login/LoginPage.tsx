@@ -107,7 +107,7 @@ const LoginPage: React.FC = () => {
             {contextHolder}
             {authState.user ? (
                 <Card className={"HelloCard"} style={{textAlign: 'center'}}>
-                    <Title level={3}>Привет, {authState.user.email}!</Title>
+                    <Title level={3} style={{textWrap: "wrap"}}>Привет, {authState.user.email}!</Title>
                     <br></br>
                     <CustomButton onClick={handleLogout}>
                         Выйти

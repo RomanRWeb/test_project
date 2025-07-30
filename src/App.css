@@ -2,6 +2,7 @@
 
 main {
     min-height: 100lvh;
+    line-height: 2;
 }
 
 .App-header {

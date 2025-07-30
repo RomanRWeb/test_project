@@ -5,7 +5,7 @@
     padding: 1rem;
 }
 
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 800px) {
     .Home-page {
         width: auto;
         margin-inline: 1%;
