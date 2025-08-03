@@ -1,0 +1,20 @@
+
+.TasksListsHolder{
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    grid-template-rows: 1fr;
+}
+
+@media screen and (max-width: 1000px) {
+    .TasksListsHolder{
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr 1fr;
+        max-height: 150vh;
+    }
+
+    .TasksLists{
+        max-height: 30vh;
+    }
+}

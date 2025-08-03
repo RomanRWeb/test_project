@@ -38,8 +38,8 @@ export interface ProjectsState {
 export interface Command {
     id: string,
     name: string,
-    projectId: string
-    userList: string[],
+    projectId: string,
+    userList: string[]
 }
 
 export interface CommandsState {
@@ -96,6 +96,9 @@ export const darkThemeConfig: ThemeConfig = {
         },
         Message: {
             contentBg: '#323232',
+        },
+        Modal: {
+            contentBg: '#323232'
         }
     }
 };

@@ -6,17 +6,16 @@ import {createTask, setTasks} from "../slices/tasksSlice";
 
 export const fetchUserTasks = createAsyncThunk(
     'tasks/fetchUserTasks',
-    async (filter: string, {dispatch, rejectWithValue, getState}) => {
+    async (_, {dispatch, rejectWithValue, getState}) => {
         const state = getState() as ReduxType;
         console.log("fetching tasks for:");
         console.log('state.ui.currentProject', JSON.stringify(state.ui.currentProject, null, 2));
         console.log('state.ui.currentCommand', JSON.stringify(state.ui.currentCommand, null, 2));
-        console.log('filter', JSON.stringify(filter, null, 2));
         try {
-            const result = await fetchTasks({projId: state.ui.currentProject, commandId: state.ui.currentCommand, filter: filter});
-            console.log('result', JSON.stringify(result, null, 2));
+            const result = await fetchTasks({projId: state.ui.currentProject, commandId: state.ui.currentCommand});
             if (result.ok) {
                 const tasks: Task[] = await result.json();
+                console.log('tasks', JSON.stringify(tasks, null, 2));
                 dispatch(setTasks(tasks));
                 return tasks;
             } else {

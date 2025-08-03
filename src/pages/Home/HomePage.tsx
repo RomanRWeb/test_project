@@ -90,10 +90,14 @@ const HomePage: React.FC = () => {
 
     useEffect(() => {
         if (uiState.currentCommand !== ''){
-            dispatch(fetchUserTasks("active")).then(unwrapResult).then((result)=>{
+            dispatch(fetchUserTasks()).then(unwrapResult).then((result)=>{
                 console.log('result', JSON.stringify(result, null, 2));
                 if (result !== null){
-                    setActiveTasks(result)
+                    console.log('taskChecking');
+                    console.log('result', JSON.stringify(result, null, 2));
+                    const activeTasks = result.filter(task => task.state === "active");
+                    console.log('activeTasks', JSON.stringify(activeTasks, null, 2));
+                    setActiveTasks(activeTasks)
                 } else {
                     messageApi.error("Не получилось загрузить задачи");
                 }
@@ -120,6 +124,7 @@ const HomePage: React.FC = () => {
             }
             console.log('result', JSON.stringify(result, null, 2));
         })
+        getCurrentCommands()
     }, [uiState.currentProject])
 
     const addProject = useCallback((project: Project) => {

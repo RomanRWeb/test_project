@@ -1,7 +1,7 @@
 import {createAction, createAsyncThunk, unwrapResult} from "@reduxjs/toolkit";
-import {Project, ReduxType, UserData} from "../../types";
+import {Command, Project, ReduxType, UserData} from "../../types";
 import {addProject, setProjects} from "../slices/projectSlice";
-import {fetchEditProject, fetchNewProject, fetchUserProject} from "../api";
+import {fetchByID, fetchEditProject, fetchEditUser, fetchNewProject, fetchUserProject} from "../api";
 import {editUser} from "./auth";
 import {addProjectToProjectList} from "../slices/authSlice";
 
@@ -84,6 +84,100 @@ export const editProject = createAsyncThunk(
             }
         } catch (error) {
             createAction(error)
+        }
+    }
+)
+
+export const addProjectToUser = createAsyncThunk(
+    'projects/addProjectToUser',
+    async (userEmail: string, {dispatch, rejectWithValue, getState}) => {
+        const state = getState() as ReduxType;
+        console.log(`Finding user with email:${userEmail}`);
+        try {
+            const fakeUser: UserData = {id: '', projectsList: [], password: '', email: userEmail}
+            const result = await fetchByID(fakeUser)
+            if (result.ok) {
+                const users: UserData[] = await result.json();
+                const user: UserData = users[0]
+                console.log('user found:', JSON.stringify(user, null, 2));
+                let userProjectList: string[] = user.projectsList;
+                console.log('userProjectList', JSON.stringify(userProjectList, null, 2));
+                const projectIsExist: boolean = userProjectList.includes(state.ui.currentProject)
+                if (projectIsExist === false) {
+                    userProjectList = userProjectList.concat(state.ui.currentProject)
+                }
+                // if (projectIsExist === false) {
+                //     userProjectList = userProjectList.concat(state.ui.currentProject)
+                // }
+                console.log('userProjectList', JSON.stringify(userProjectList, null, 2));
+                try {
+                    const newFakeUser: UserData = {
+                        id: user.id,
+                        projectsList: userProjectList,
+                        password: '',
+                        email: ''
+                    }
+                    const result = await fetchEditUser(newFakeUser)
+                    if (result.ok) {
+                        return true
+                    } else return rejectWithValue({error: 'Unable to add project'});
+
+                } catch (error) {
+                    createAction(error)
+                }
+
+            } else return rejectWithValue({error: 'Unable to find user'});
+        } catch (error) {
+            createAction(error)
+        }
+    }
+)
+
+export const deleteUserFromProject = createAsyncThunk(
+    'projects/deleteUserFromProject',
+    async (userEmail: string, {dispatch, rejectWithValue, getState}) => {
+        const state = getState() as ReduxType;
+        console.log(`Finding user with email:${userEmail}`);
+        const commands: Command[] = state.commands.commands;
+        const commandsWithUser: string[] = commands.reduce((acc: string[], command: Command)=>{
+            if (command.userList.includes(userEmail)){
+                acc = acc.concat(command.id);
+            }
+            return acc
+        },[] as string[])
+        console.log('commandsWithUser', JSON.stringify(commandsWithUser, null, 2));
+        const filteredCommands = commandsWithUser.filter(el => el !== state.ui.currentCommand)
+        console.log('filteredCommands', JSON.stringify(filteredCommands, null, 2));
+        if (filteredCommands.length === 0) {
+            try {
+                const fakeUser: UserData = {id: '', projectsList: [], password: '', email: userEmail}
+                const result = await fetchByID(fakeUser)
+                if (result.ok) {
+                    const users: UserData[] = await result.json();
+                    const user: UserData = users[0]
+                    const newProjectList = user.projectsList.filter(el => el !== state.ui.currentProject)
+
+                    try {
+                        const newFakeUser: UserData = {
+                            id: user.id,
+                            projectsList: newProjectList,
+                            password: '',
+                            email: ''
+                        }
+                        const result = await fetchEditUser(newFakeUser)
+                        if (result.ok) {
+                            return true
+                        } else return rejectWithValue({error: 'Unable to delete project'});
+
+                    } catch (error) {
+                        createAction(error)
+                    }
+                } else return rejectWithValue({error: 'Unable to fetch user'});
+            }catch(error) {
+                createAction(error)
+            }
+        } else{
+            return true
         }
     }
 )

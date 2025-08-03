@@ -1,15 +1,12 @@
 .projectCommandsOverview{
     display: grid;
     gap: 1rem;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr;
 }
 
-@media screen and (max-width: 1400px){
-    .projectCommandsOverview{
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 1fr;
-    }
+.projectCommandsOverview > div:nth-child(2){
+    padding-block: 12px;
 }
 
 
