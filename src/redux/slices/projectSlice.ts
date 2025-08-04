@@ -1,6 +1,6 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {Project, ProjectsState} from "../../types";
-import {createNewProject, editProject, fetchProject} from "../thunks/projects";
+import {addProjectToUser, createNewProject, deleteUserFromProject, editProject, fetchProject} from "../thunks/projects";
 
 
 const initialSliceState: ProjectsState = {
@@ -61,6 +61,34 @@ export const projectSlice = createSlice({
             })
             .addCase(editProject.rejected, (state, action) => {
                 console.log('editProject.rejected', JSON.stringify(action.payload, null, 2));
+                state.error = action.payload;
+                state.isLoading = false;
+            })
+            .addCase(addProjectToUser.pending, (state) => {
+                console.log('addProjectToUser.pending');
+                state.isLoading = true;
+                state.error = null
+            })
+            .addCase(addProjectToUser.fulfilled, (state) => {
+                console.log('addProjectToUser.fulfilled');
+                state.isLoading = false;
+            })
+            .addCase(addProjectToUser.rejected, (state, action) => {
+                console.log('addProjectToUser.rejected', JSON.stringify(action.payload, null, 2));
+                state.error = action.payload;
+                state.isLoading = false;
+            })
+            .addCase(deleteUserFromProject.pending, (state) => {
+                console.log('deleteUserFromProject.pending');
+                state.isLoading = true;
+                state.error = null
+            })
+            .addCase(deleteUserFromProject.fulfilled, (state) => {
+                console.log('deleteUserFromProject.fulfilled');
+                state.isLoading = false;
+            })
+            .addCase(deleteUserFromProject.rejected, (state, action) => {
+                console.log('deleteUserFromProject.rejected', JSON.stringify(action.payload, null, 2));
                 state.error = action.payload;
                 state.isLoading = false;
             })

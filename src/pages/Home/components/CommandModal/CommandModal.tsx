@@ -44,22 +44,24 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
     const [addUserLogin, setAddUserLogin] = useState<string>("")
 
     useEffect(() => {
-        const currCommandId = uiState.currentCommand
-        const command = commandsState.commands?.find((command) => command.id === currCommandId)
-        setCommand(command)
-        const isProjectCreator = projectState.projects?.some((project) => project.creatorId === authState.user.id)
-        if (isProjectCreator) {
-            setCreator(true)
+        if (isModalOpen) {
+            const command = commandsState.commands?.find((command) => command.id === uiState.currentCommand)
+            console.log('command', JSON.stringify(command, null, 2));
+            setCommand(command)
+            const isProjectCreator = projectState.projects?.some((project) => project.creatorId === authState.user.id)
+            if (isProjectCreator) {
+                setCreator(true)
+            }
+            const isCommandParticipant = command?.userList.some((userEmail) => userEmail === authState.user.email)
+            if (isProjectCreator || isCommandParticipant) {
+                setParticipant(true)
+            }
+            setUserList(command?.userList)
+            console.log('isProjectCreator', JSON.stringify(isProjectCreator, null, 2));
+            console.log('isCommandParticipant', JSON.stringify(isCommandParticipant, null, 2));
+            taskSort()
         }
-        const isCommandParticipant = command?.userList.some((userEmail) => userEmail === authState.user.email)
-        if (isProjectCreator || isCommandParticipant) {
-            setParticipant(true)
-        }
-        setUserList(command?.userList)
-        console.log('isProjectCreator', JSON.stringify(isProjectCreator, null, 2));
-        console.log('isCommandParticipant', JSON.stringify(isCommandParticipant, null, 2));
-        taskSort()
-    }, [uiState.currentCommand, commandsState.commands, projectState.projects, tasksState.tasks]);
+    }, [isModalOpen]);
 
     const taskSort = useCallback(() => {
         const sortedTasksArray = tasksState.tasks?.reduce((acc, task) => {
@@ -122,34 +124,50 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
         dispatch(addProjectToUser(addUserLogin)).then(unwrapResult).then((result) => {
             console.log('result', JSON.stringify(result, null, 2));
             if (result === true) {
-                const newUserList = userList.concat(addUserLogin)
+                const newUsersList = userList.concat(addUserLogin)
                 dispatch(fetchChangeCommandUsers({
                     commandId: command.id,
                     projectId: uiState.currentProject,
-                    userList: newUserList
+                    userList: newUsersList
                 })).then(unwrapResult).then((result) => {
                     if (result === true) {
-                        setUserList(newUserList);
+                        setUserList(newUsersList);
                         setAddUserState(false)
                         setAddUserLogin("")
+                        messageApi.success("пользователь успешно добавлен")
+                    } else {
+                        messageApi.error("Не получилось добавить пользователя")
                     }
                 })
             } else {
                 messageApi.error("Что-то пошло не так, проверьте логин пользователя и повторите еще раз")
             }
         })
-    }, [addUserLogin])
+    }, [command?.id, addUserLogin])
 
     const deleteUser = useCallback((userEmail: string) => {
-        dispatch(deleteUserFromProject(addUserLogin)).then(unwrapResult).then((result) => {
+        dispatch(deleteUserFromProject(userEmail)).then(unwrapResult).then((result) => {
             console.log('result', JSON.stringify(result, null, 2));
             if (result === true) {
-                //
+                const newUsersList = userList.filter(el => el !== userEmail)
+                console.log('newUsersList', JSON.stringify(newUsersList, null, 2));
+                dispatch(fetchChangeCommandUsers({
+                    commandId: command.id,
+                    projectId: uiState.currentProject,
+                    userList: newUsersList
+                })).then(unwrapResult).then((result) => {
+                    if (result === true) {
+                        setUserList(newUsersList);
+                        messageApi.success("пользователь успешно удален")
+                    } else {
+                        messageApi.error("Не получилось удалить пользователя из команды")
+                    }
+                })
             } else {
-                messageApi.error("Что-то пошло не так, проверьте логин пользователя и повторите еще раз")
+                messageApi.error("Что-то пошло не так")
             }
         })
-    }, [])
+    }, [command?.id, addUserLogin])
 
     const handleCancelAddUser = useCallback(() => {
         setAddUserState(false)
@@ -211,6 +229,7 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
             <div className={"TasksListsHolder"}>
                 <CustomCard cardTitle={"Завершенные задачи"} hoverable={false}>
                     <List
+                        split={false}
                         className={"TasksLists"}
                         loading={tasksState.isLoading}
                         itemLayout="horizontal"
@@ -224,6 +243,7 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
                 </CustomCard>
                 <CustomCard cardTitle={"Активные задачи"} hoverable={false}>
                     <List
+                        split={false}
                         className={"TasksLists"}
                         loading={tasksState.isLoading}
                         itemLayout="horizontal"
@@ -237,6 +257,7 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
                 </CustomCard>
                 <CustomCard cardTitle={"Планируемые задачи"} hoverable={false}>
                     <List
+                        split={false}
                         className={"TasksLists"}
                         loading={tasksState.isLoading}
                         itemLayout="horizontal"

@@ -139,12 +139,9 @@ export const deleteUserFromProject = createAsyncThunk(
         const state = getState() as ReduxType;
         console.log(`Finding user with email:${userEmail}`);
         const commands: Command[] = state.commands.commands;
-        const commandsWithUser: string[] = commands.reduce((acc: string[], command: Command)=>{
-            if (command.userList.includes(userEmail)){
-                acc = acc.concat(command.id);
-            }
-            return acc
-        },[] as string[])
+        const commandsWithUser: string[] = commands
+            .filter(command => command.userList.includes(userEmail))
+            .map(command => command.id);
         console.log('commandsWithUser', JSON.stringify(commandsWithUser, null, 2));
         const filteredCommands = commandsWithUser.filter(el => el !== state.ui.currentCommand)
         console.log('filteredCommands', JSON.stringify(filteredCommands, null, 2));

@@ -48,7 +48,7 @@ export const fetchChangeCommandName = createAsyncThunk(
 )
 
 export const fetchChangeCommandUsers = createAsyncThunk(
-    'commands/fetchChangeCommandName',
+    'commands/fetchChangeCommandUsers',
     async ({projectId, commandId, userList}: {projectId: string, commandId: string, userList: string[]}, {dispatch, rejectWithValue, getState}) =>{
         try {
             const result = await fetchEditCommandUsers(projectId, commandId, userList);

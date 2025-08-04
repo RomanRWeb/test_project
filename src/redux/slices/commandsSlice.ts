@@ -1,6 +1,6 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {Command, CommandsState} from "../../types";
-import {fetchCommands} from "../thunks/commands";
+import {fetchChangeCommandName, fetchChangeCommandUsers, fetchCommands} from "../thunks/commands";
 
 
 const initialCommandsState: CommandsState = {
@@ -33,6 +33,34 @@ export const commandsSlice = createSlice({
             })
             .addCase(fetchCommands.rejected, (state, action) => {
                 console.log('fetchCommands.rejected', JSON.stringify(action.payload, null, 2));
+                state.error = action.payload;
+                state.isLoading = false;
+            })
+            .addCase(fetchChangeCommandName.pending, (state) => {
+                console.log('fetchChangeCommandName.pending');
+                state.isLoading = true;
+                state.error = null
+            })
+            .addCase(fetchChangeCommandName.fulfilled, (state) => {
+                console.log('fetchChangeCommandName.fulfilled');
+                state.isLoading = false;
+            })
+            .addCase(fetchChangeCommandName.rejected, (state, action) => {
+                console.log('fetchChangeCommandName.rejected', JSON.stringify(action.payload, null, 2));
+                state.error = action.payload;
+                state.isLoading = false;
+            })
+            .addCase(fetchChangeCommandUsers.pending, (state) => {
+                console.log('fetchChangeCommandUsers.pending');
+                state.isLoading = true;
+                state.error = null
+            })
+            .addCase(fetchChangeCommandUsers.fulfilled, (state) => {
+                console.log('fetchChangeCommandUsers.fulfilled');
+                state.isLoading = false;
+            })
+            .addCase(fetchChangeCommandUsers.rejected, (state, action) => {
+                console.log('fetchChangeCommandUsers.rejected', JSON.stringify(action.payload, null, 2));
                 state.error = action.payload;
                 state.isLoading = false;
             })

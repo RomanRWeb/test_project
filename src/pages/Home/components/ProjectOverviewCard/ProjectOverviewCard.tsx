@@ -169,7 +169,7 @@ export const ProjectOverviewCard = ({project, commands, tasks, reloadFunc}: Proj
                     }
                 </Flex>
             </div>
-            {/*<button onClick={handleClick}>check state</button>*/}
+            <button onClick={handleClick}>check state</button>
             <CommandModal isModalOpen={isModalOpen} handleCancel={handleCancel}/>
         </CustomCard>
     )

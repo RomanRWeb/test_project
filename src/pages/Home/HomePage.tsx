@@ -90,6 +90,7 @@ const HomePage: React.FC = () => {
 
     useEffect(() => {
         if (uiState.currentCommand !== ''){
+            getCurrentCommands()
             dispatch(fetchUserTasks()).then(unwrapResult).then((result)=>{
                 console.log('result', JSON.stringify(result, null, 2));
                 if (result !== null){
