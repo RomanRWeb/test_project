@@ -13,6 +13,9 @@ interface CustomCardProps {
     hoverable?: boolean;
     extra?: React.ReactNode,
     onCardClickFunc?: () => void;
+    // eslint-disable-next-line
+    styles?: any;
+    size?: "default" | "small";
 }
 
 const CustomCard: React.FC<CustomCardProps> = ({
@@ -27,6 +30,8 @@ const CustomCard: React.FC<CustomCardProps> = ({
                                                    hoverable = true,
                                                    extra,
                                                    onCardClickFunc,
+                                                   styles,
+                                                   size = "default",
                                                }: CustomCardProps) => {
     return (
         <Card
@@ -40,6 +45,8 @@ const CustomCard: React.FC<CustomCardProps> = ({
             hoverable={hoverable}
             extra={extra}
             onClick={onCardClickFunc}
+            styles={styles}
+            size={size}
         >
             {children}
         </Card>

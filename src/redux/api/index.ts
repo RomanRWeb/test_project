@@ -1,4 +1,4 @@
-import {Command, Project, UserData} from "../../types";
+import {Command, Project, Task, UserData} from "../../types";
 
 export const fetchByID = async (userData: UserData) => {
     const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users/`);
@@ -90,10 +90,9 @@ export const fetchEditCommandUsers = async (projectId: string, commandId: string
     })
 }
 
-export const fetchTasks = async ({projId, commandId, filter}: {
+export const fetchTasks = async ({projId, commandId}: {
     projId: string,
     commandId: string,
-    filter?: string
 }) => {
     const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projId}/commands/${commandId}/tasks`);
 
@@ -101,6 +100,16 @@ export const fetchTasks = async ({projId, commandId, filter}: {
     return fetch(url, {
         method: 'GET',
         headers: {'content-type': 'application/json'},
+    })
+}
+
+export const editTasks = async ({projId, commandId, task}: { projId: string, commandId: string, task: {id: string, state: string}}) => {
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projId}/commands/${commandId}/tasks/${task.id}`);
+
+    return fetch(url, {
+        method: 'PUT',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({state: task.state}),
     })
 }
 

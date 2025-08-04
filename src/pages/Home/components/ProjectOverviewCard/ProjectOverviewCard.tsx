@@ -9,7 +9,7 @@ import {ReloadOutlined, EditOutlined, CaretRightOutlined, LoadingOutlined} from 
 import {editProject} from "../../../../redux/thunks/projects";
 import {unwrapResult} from "@reduxjs/toolkit";
 import CustomButton from "../../../../components/CustomButton/CustomButton";
-import "./projectCommandsOverview.css"
+import "./projectOverviewCard.css"
 import {setCurrentCommand} from "../../../../redux/slices/uiSlice";
 import CommandModal from "../CommandModal/CommandModal";
 
@@ -106,9 +106,10 @@ export const ProjectOverviewCard = ({project, commands, tasks, reloadFunc}: Proj
                         dataSource={commands}
                         renderItem={(item) => (
                             <List.Item style={{padding: '8px'}}>
-                                <CustomCard style={{width: "100%"}}
+                                <CustomCard style={{width: "100%", minHeight: "80px"}}
                                             hoverable={true}
                                             loading={commandsState.isLoading}
+                                            size="small"
                                             onCardClickFunc={() => handleCardClick(item)}
                                 >
                                     <Flex vertical={false} justify={"space-between"}>

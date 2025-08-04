@@ -1,6 +1,6 @@
 import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 import {ReduxType, Task, UserData} from "../../types";
-import {fetchNewTasks, fetchTasks} from "../api";
+import {editTasks, fetchNewTasks, fetchTasks} from "../api";
 import {createTask, setTasks} from "../slices/tasksSlice";
 
 
@@ -18,6 +18,24 @@ export const fetchUserTasks = createAsyncThunk(
                 console.log('tasks', JSON.stringify(tasks, null, 2));
                 dispatch(setTasks(tasks));
                 return tasks;
+            } else {
+                rejectWithValue({error: 'Unable to fetch user tasks'});
+            }
+        } catch (error) {
+            createAction(error);
+        }
+    }
+)
+
+export const editTask = createAsyncThunk(
+    'tasks/editTask',
+    async (task: {id: string, state: string}, {dispatch, rejectWithValue, getState}) => {
+        const state = getState() as ReduxType;
+        try{
+            const result = await editTasks({projId: state.ui.currentProject, commandId: state.ui.currentCommand, task: task});
+            if (result.ok) {
+                const newTask: Task = await result.json();
+                return newTask;
             } else {
                 rejectWithValue({error: 'Unable to fetch user tasks'});
             }

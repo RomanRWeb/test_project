@@ -1,9 +1,9 @@
 import {Divider, Flex, List, message, Modal, Space, Typography} from "antd";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../../../store";
-import {Command, Task} from "../../../../types";
-import {EditOutlined, CheckOutlined, CloseOutlined, UserDeleteOutlined} from "@ant-design/icons";
+import {Command, darkThemeConfig, lightThemeConfig, Task} from "../../../../types";
+import {EditOutlined, CheckOutlined, CloseOutlined, UserDeleteOutlined, SearchOutlined} from "@ant-design/icons";
 import {unwrapResult} from "@reduxjs/toolkit";
 import {fetchChangeCommandName, fetchChangeCommandUsers} from "../../../../redux/thunks/commands";
 import "./CommandModal.css"
@@ -11,6 +11,10 @@ import {CustomCard} from "../../../../components/CustomCard/CustomCard";
 import CustomButton from "../../../../components/CustomButton/CustomButton";
 import {addProjectToUser, deleteUserFromProject} from "../../../../redux/thunks/projects";
 import {CustomInputField} from "../../../../components/CustomInputField/CustomInputField";
+import {DndContext, useSensor, useSensors, PointerSensor, DragOverlay} from '@dnd-kit/core';
+import {DraggableItem, DroppableContainer} from "../DnDItems/DndItems";
+import getDesignToken from "antd/es/theme/getDesignToken";
+import {ThemeContext} from "../../../../App";
 
 
 interface CommandModalProps {
@@ -31,6 +35,7 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
 
     const {Title, Text} = Typography;
     const [messageApi, contextHolder] = message.useMessage();
+    const {darkTheme, toggleTheme} = useContext(ThemeContext);
 
     const [command, setCommand] = useState<Command>({id: '0', name: '', projectId: '', userList: []});
     const [activeTasks, setActiveTasks] = useState<Task[]>([]);
@@ -42,6 +47,18 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
     const [isCreator, setCreator] = useState<boolean>(false)
     const [addUserState, setAddUserState] = useState<boolean>(false)
     const [addUserLogin, setAddUserLogin] = useState<string>("")
+
+    const [activeId, setActiveId] = useState(null);
+    const [draggedTaskName, setDraggedTaskName] = useState<string>("")
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                delay: 150,
+                tolerance: 5,
+            }
+        })
+    );
 
     useEffect(() => {
         if (isModalOpen) {
@@ -60,6 +77,7 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
             console.log('isProjectCreator', JSON.stringify(isProjectCreator, null, 2));
             console.log('isCommandParticipant', JSON.stringify(isCommandParticipant, null, 2));
             taskSort()
+            setActiveId(null);
         }
     }, [isModalOpen]);
 
@@ -93,6 +111,7 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
         console.log('completeTasks', JSON.stringify(completeTasks, null, 2));
         console.log('todoTasks', JSON.stringify(todoTasks, null, 2));
         console.log('activeTasks', JSON.stringify(activeTasks, null, 2));
+        console.log('activeId', JSON.stringify(activeId, null, 2));
     }
 
     const handleChangeCommandName = useCallback((str: string) => {
@@ -174,6 +193,62 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
         setAddUserLogin("")
     }, [])
 
+    const handleDragStart = (id) => {
+        setActiveId(id);
+        const selectedTask: Task = tasksState.tasks.find(task => task.id === id)
+        console.log('selectedTask', JSON.stringify(selectedTask, null, 2));
+        setDraggedTaskName(selectedTask.name)
+    };
+
+    const handleDragEnd = (event) => {
+        const {over} = event;
+
+        if (!over || !activeId) return;
+        //console.log('over.id', JSON.stringify(over.id, null, 2));
+        // const task: Task = tasksState.tasks.find(task => task.id === activeId);
+        // let taskFrom: string = task.state;
+        //
+        setActiveId(null);
+    }
+
+    const createDroppableList = useCallback(({taskList, taskListName}: { taskList: Task[], taskListName: string }) => {
+        return (
+            <DroppableContainer id={taskListName}>
+                <List
+                    split={false}
+                    className={"TasksLists"}
+                    loading={tasksState.isLoading}
+                    itemLayout="horizontal"
+                    dataSource={taskList}
+                    renderItem={(item) => (createDraggableItem(item))}>
+                </List>
+            </DroppableContainer>
+        )
+    }, [tasksState.isLoading])
+
+    const DarkToken = getDesignToken(darkThemeConfig);
+    const LightToken = getDesignToken(lightThemeConfig);
+
+    const itemStyle = {
+        dark: {
+            border: `1px solid ${DarkToken.colorTextBase}`,
+        },
+        light: {
+            border: `1px solid ${LightToken.colorTextBase}`,
+        }
+    }
+
+    const createDraggableItem = (item: Task) => {
+        return (
+            <DraggableItem id={item.id} onDragStart={handleDragStart}>
+                <List.Item actions={[<CustomButton key={`${item.id}_inspect`} icon={<SearchOutlined/>}/>]}
+                           style={darkTheme ? itemStyle.dark : itemStyle.light} className={"draggableTask"}>
+                    <div style={{paddingLeft: "8px"}}>{item.name}</div>
+                </List.Item>
+            </DraggableItem>
+        )
+    }
+
     return (
         <Modal
             width={{       //Название	Минимальная ширина (px)	Описание
@@ -227,49 +302,35 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
             </Space>
             <Divider></Divider>
             <div className={"TasksListsHolder"}>
-                <CustomCard cardTitle={"Завершенные задачи"} hoverable={false}>
-                    <List
-                        split={false}
-                        className={"TasksLists"}
-                        loading={tasksState.isLoading}
-                        itemLayout="horizontal"
-                        dataSource={completeTasks}
-                        renderItem={(item) => (
-                            <List.Item>
-                                <div>{item.name}</div>
-                            </List.Item>
-                        )}>
-                    </List>
-                </CustomCard>
-                <CustomCard cardTitle={"Активные задачи"} hoverable={false}>
-                    <List
-                        split={false}
-                        className={"TasksLists"}
-                        loading={tasksState.isLoading}
-                        itemLayout="horizontal"
-                        dataSource={activeTasks}
-                        renderItem={(item) => (
-                            <List.Item>
-                                <div>{item.name}</div>
-                            </List.Item>
-                        )}>
-                    </List>
-                </CustomCard>
-                <CustomCard cardTitle={"Планируемые задачи"} hoverable={false}>
-                    <List
-                        split={false}
-                        className={"TasksLists"}
-                        loading={tasksState.isLoading}
-                        itemLayout="horizontal"
-                        dataSource={todoTasks}
-                        renderItem={(item) => (
-                            <List.Item>
-                                <div>{item.name}</div>
-                            </List.Item>
-                        )}>
-                    </List>
-                </CustomCard>
+                <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+                    <CustomCard cardTitle={"Завершенные задачи"} hoverable={false} styles={{body: {padding: '0'}}}>
+                        {createDroppableList({taskList: completeTasks, taskListName: "completeTasks"})}
+                    </CustomCard>
+                    <CustomCard cardTitle={"Активные задачи"} hoverable={false} styles={{body: {padding: '0'}}}>
+                        {createDroppableList({taskList: activeTasks, taskListName: "activeTasks"})}
+                    </CustomCard>
+                    <CustomCard cardTitle={"Планируемые задачи"} hoverable={false} styles={{body: {padding: '0'}}}>
+                        {createDroppableList({taskList: todoTasks, taskListName: "todoTasks"})}
+                    </CustomCard>
+
+                    <DragOverlay>
+                        {activeId ? (
+                            <div style={darkTheme ? itemStyle.dark : itemStyle.light} className={"draggableTask"}>
+                                <div style={{
+                                    paddingLeft: "8px",
+                                    minHeight: '65px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    zIndex: 100
+                                }}>
+                                    {draggedTaskName}
+                                </div>
+                            </div>
+                        ) : null}
+                    </DragOverlay>
+                </DndContext>
             </div>
+            <Text>*для перетаскивания задачи нужно немного ее удерживать</Text>
             <button onClick={checkState}>check</button>
         </Modal>
     )

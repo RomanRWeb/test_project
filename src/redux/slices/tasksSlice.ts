@@ -1,6 +1,6 @@
 import {Task, TasksState} from "../../types";
 import {createSlice} from "@reduxjs/toolkit";
-import {fetchUserTasks} from "../thunks/tasks";
+import {editTask, fetchUserTasks} from "../thunks/tasks";
 
 const initialSliceState: TasksState = {
     tasks: [],
@@ -32,6 +32,20 @@ export const tasksSlice = createSlice({
         })
         .addCase(fetchUserTasks.rejected, (state, action) => {
             console.log('fetchUserTasks.rejected', JSON.stringify(action.payload, null, 2));
+            state.error = action.payload;
+            state.isLoading = false;
+        })
+        .addCase(editTask.pending, (state) => {
+            console.log('editTask.pending');
+            state.isLoading = true;
+            state.error = null
+        })
+        .addCase(editTask.fulfilled, (state) => {
+            console.log('editTask.fulfilled');
+            state.isLoading = false;
+        })
+        .addCase(editTask.rejected, (state, action) => {
+            console.log('editTask.rejected', JSON.stringify(action.payload, null, 2));
             state.error = action.payload;
             state.isLoading = false;
         })
