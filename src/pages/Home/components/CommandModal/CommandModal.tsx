@@ -15,6 +15,8 @@ import {DndContext, useSensor, useSensors, PointerSensor, DragOverlay} from '@dn
 import {DraggableItem, DroppableContainer} from "../DnDItems/DndItems";
 import getDesignToken from "antd/es/theme/getDesignToken";
 import {ThemeContext} from "../../../../App";
+import {fetchUserTasks} from "../../../../redux/thunks/tasks";
+import {setTasks} from "../../../../redux/slices/tasksSlice";
 
 
 interface CommandModalProps {
@@ -63,7 +65,6 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
     useEffect(() => {
         if (isModalOpen) {
             const command = commandsState.commands?.find((command) => command.id === uiState.currentCommand)
-            console.log('command', JSON.stringify(command, null, 2));
             setCommand(command)
             const isProjectCreator = projectState.projects?.some((project) => project.creatorId === authState.user.id)
             if (isProjectCreator) {
@@ -74,8 +75,6 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
                 setParticipant(true)
             }
             setUserList(command?.userList)
-            console.log('isProjectCreator', JSON.stringify(isProjectCreator, null, 2));
-            console.log('isCommandParticipant', JSON.stringify(isCommandParticipant, null, 2));
             taskSort()
             setActiveId(null);
         }
@@ -193,20 +192,25 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
         setAddUserLogin("")
     }, [])
 
-    const handleDragStart = (id) => {
+    const handleDragStart = useCallback((id) => {
         setActiveId(id);
+        console.log('Find task with id', JSON.stringify(id, null, 2));
+        console.log('tasksState.tasks', JSON.stringify(tasksState.tasks, null, 2));
         const selectedTask: Task = tasksState.tasks.find(task => task.id === id)
         console.log('selectedTask', JSON.stringify(selectedTask, null, 2));
         setDraggedTaskName(selectedTask.name)
-    };
+    }, [tasksState.tasks]);
 
     const handleDragEnd = (event) => {
         const {over} = event;
 
         if (!over || !activeId) return;
-        //console.log('over.id', JSON.stringify(over.id, null, 2));
-        // const task: Task = tasksState.tasks.find(task => task.id === activeId);
-        // let taskFrom: string = task.state;
+        const taskEndContainer = over.id
+        const task: Task = tasksState.tasks.find(task => task.id === activeId);
+        const taskFrom: string = task.state;
+        console.log('taskEndContainer', JSON.stringify(taskEndContainer, null, 2));
+        console.log('taskFrom', JSON.stringify(taskFrom, null, 2));
+        console.log('task', JSON.stringify(task, null, 2));
         //
         setActiveId(null);
     }

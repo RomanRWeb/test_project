@@ -71,11 +71,11 @@ export const ProjectOverviewCard = ({project, commands, tasks, reloadFunc}: Proj
         setCommand(command)
     }, [])
 
-    const showModal = useCallback(()=>{
+    const showModal = useCallback(() => {
         dispatch(setCurrentCommand(command.id))
         setCommand(command)
         setIsModalOpen(true);
-    }, [])
+    }, [command])
 
     const handleCancel = useCallback(() => {
         setIsModalOpen(false);
@@ -114,7 +114,7 @@ export const ProjectOverviewCard = ({project, commands, tasks, reloadFunc}: Proj
                                 >
                                     <Flex vertical={false} justify={"space-between"}>
                                         <Title level={3}>{item.name}</Title>
-                                        <CustomButton type={"link"} onClick={showModal}>ещё</CustomButton>
+                                        {/**/}
                                     </Flex>
                                 </CustomCard>
                             </List.Item>
@@ -122,21 +122,17 @@ export const ProjectOverviewCard = ({project, commands, tasks, reloadFunc}: Proj
                     />
                 </Flex>
                 <Flex vertical={true}>
-                    {/*<List*/}
-                    {/*    loading={tasksState.isLoading}*/}
-                    {/*    itemLayout="horizontal"*/}
-                    {/*    dataSource={tasks}*/}
-                    {/*    renderItem={(item) => (*/}
-                    {/*        <List.Item>*/}
-                    {/*            */}
-                    {/*        </List.Item>*/}
-                    {/*    )}*/}
-                    {/*/>*/}
                     {command.id != '0' ? <>
-                            <Title level={3}>{command.name}</Title>
+                            <Flex justify={"space-between"}>
+                                <Skeleton loading={commandsState.isLoading} >
+                                    <Title level={3}>{command.name}</Title>
+                                    <CustomButton type={"link"} onClick={showModal}>ещё</CustomButton>
+                                </Skeleton>
+                            </Flex>
+
                             <Text>Активные задачи:</Text>
                             <Divider size={"middle"}/>
-                            {!tasksState.isLoading? <Collapse
+                            {!tasksState.isLoading ? <Collapse
                                 bordered={false}
                                 accordion={true}
                                 expandIcon={({isActive}) => <CaretRightOutlined rotate={isActive ? 90 : 0}/>}
@@ -149,8 +145,8 @@ export const ProjectOverviewCard = ({project, commands, tasks, reloadFunc}: Proj
                                     }
                                 ))}
                             /> : <Spin indicator={<LoadingOutlined spin/>}/>}
-                        {/*<button onClick={()=>{console.log('tasks', JSON.stringify(tasks, null, 2));}}>tasks</button>*/}
-                            {!tasks && !tasksState.isLoading? <Text>Сейчас активных задач нет</Text> : null}
+                            {/*<button onClick={()=>{console.log('tasks', JSON.stringify(tasks, null, 2));}}>tasks</button>*/}
+                            {!tasks && !tasksState.isLoading ? <Text>Сейчас активных задач нет</Text> : null}
                             <Divider size={"middle"}/>
                             <Text>Участники:</Text>
                             {!commandsState.isLoading ? <List

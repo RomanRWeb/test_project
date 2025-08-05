@@ -91,12 +91,12 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         if (uiState.currentCommand !== ''){
             getCurrentCommands()
+            console.log('uiState.currentCommand', JSON.stringify(uiState.currentCommand, null, 2));
             dispatch(fetchUserTasks()).then(unwrapResult).then((result)=>{
-                console.log('result', JSON.stringify(result, null, 2));
                 if (result !== null){
                     console.log('taskChecking');
-                    console.log('result', JSON.stringify(result, null, 2));
-                    const activeTasks = result.filter(task => task.state === "active");
+                    console.log('All tasks', JSON.stringify(result, null, 2));
+                    const activeTasks = result?.filter(task => task.state === "active");
                     console.log('activeTasks', JSON.stringify(activeTasks, null, 2));
                     setActiveTasks(activeTasks)
                 } else {
