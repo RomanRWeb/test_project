@@ -4,7 +4,7 @@ import {CustomCard} from "../../../../components/CustomCard/CustomCard";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../../../store";
 import {Collapse, Divider, Flex, List, message, Skeleton, Spin, Typography} from "antd";
-import {Command, Project, Task} from "../../../../types";
+import {Command, Project} from "../../../../types";
 import {CaretRightOutlined, EditOutlined, LoadingOutlined, ReloadOutlined} from '@ant-design/icons';
 import {editProject} from "../../../../redux/thunks/projects";
 import {unwrapResult} from "@reduxjs/toolkit";
@@ -25,7 +25,6 @@ export const ProjectOverviewCard = ({project, reloadFunc, isCreator}: ProjectCar
     const projectState = useSelector((state: RootState) => state.projects);
     const commandsState = useSelector((state: RootState) => state.commands);
     const authState = useSelector((state: RootState) => state.auth);
-    const uiState = useSelector((state: RootState) => state.ui);
     const tasksState = useSelector((state: RootState) => state.tasks)
     const dispatch: AppDispatch = useDispatch();
     const {Title, Text} = Typography;

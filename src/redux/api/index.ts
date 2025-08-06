@@ -113,7 +113,7 @@ export const fetchTasks = async ({projId, commandId}: {
     })
 }
 
-export const editTasks = async ({projId, commandId, task}: { projId: string, commandId: string, task: {id: string, state: string}}) => {
+export const editTaskState = async ({projId, commandId, task}: { projId: string, commandId: string, task: {id: string, state: string}}) => {
     const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projId}/commands/${commandId}/tasks/${task.id}`);
 
     return fetch(url, {
@@ -123,16 +123,33 @@ export const editTasks = async ({projId, commandId, task}: { projId: string, com
     })
 }
 
-export const fetchNewTasks = async (userData: UserData, {name: taskName, description: taskDescription}: {
-    name: string,
-    description: string
-}) => {
-    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users/${userData.id}/tasks`);
+export const editTaskName = async ({projId, commandId, task}: { projId: string, commandId: string, task: {id: string, name: string}}) => {
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projId}/commands/${commandId}/tasks/${task.id}`);
+
+    return fetch(url, {
+        method: 'PUT',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({name: task.name}),
+    })
+}
+
+export const editTaskDescription = async ({projId, commandId, task}: { projId: string, commandId: string, task: {id: string, description: string}}) => {
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projId}/commands/${commandId}/tasks/${task.id}`);
+
+    return fetch(url, {
+        method: 'PUT',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({description: task.description }),
+    })
+}
+
+export const fetchNewTasks = async ({projId, commandId}: { projId: string, commandId: string}) => {
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projId}/commands/${commandId}/tasks/`);
 
     return fetch(url, {
         method: 'POST',
         headers: {'content-type': 'application/json'},
-        body: JSON.stringify({name: taskName, description: taskDescription})
+        body: JSON.stringify({name: "новая задача", description: ""})
     })
 }
 

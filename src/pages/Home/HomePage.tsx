@@ -44,10 +44,17 @@ const HomePage: React.FC = () => {
             console.log('currentProject', JSON.stringify(currentProject, null, 2));
             // console.log('------------------------------------------------')
             dispatch(fetchProject(currentProject)).then(unwrapResult).then((result) => {
-                if (result === null) {
+                if (result !== null) {
+                    if (result.creatorId === authState.user.id){
+                        setIsCreator(true);
+                    } else {
+                        setIsCreator(false);
+                    }
+                } else {
                     messageApi.error("Не получилось загрузить проект");
                 }
             })
+
         } else {
             messageApi.info("У вас пока нет проектов")
         }
@@ -61,6 +68,11 @@ const HomePage: React.FC = () => {
                 console.log('result', JSON.stringify(result, null, 2));
                 if (result !== null) {
                     elFromStore = result
+                    if (result.creatorId === authState.user.id){
+                        setIsCreator(true);
+                    } else {
+                        setIsCreator(false);
+                    }
                 } else {
                     elFromStore = {id: uiState.currentProject, name: 'Placeholder', creatorId: ''};
                     messageApi.error("Не получилось загрузить проект");
@@ -80,12 +92,6 @@ const HomePage: React.FC = () => {
 
     useEffect(() => {
         setActiveKey(uiState.currentProject)
-        // const currProject = projectState.projects.find(el => el.id === uiState.currentProject)
-        // if (currProject?.creatorId === authState.user.id) {
-        //     setIsCreator(true)
-        //     console.log('creator this project');
-        // }
-        // console.log("set isCreator useEffect called", currProject);
     }, [uiState.currentProject]);
 
     useEffect(() => {
@@ -117,7 +123,6 @@ const HomePage: React.FC = () => {
             }
         }).catch((rejectedValueOrSerializedError) => {
             console.log('rejectedValueOrSerializedError', JSON.stringify(rejectedValueOrSerializedError, null, 2));
-            // handle error here
         })
     }, [uiState.currentProject]);
 
@@ -128,7 +133,6 @@ const HomePage: React.FC = () => {
             }
         }).catch((rejectedValueOrSerializedError) => {
             console.log('rejectedValueOrSerializedError', JSON.stringify(rejectedValueOrSerializedError, null, 2));
-            // handle error here
         })
     }, [uiState.currentProject])
 

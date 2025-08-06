@@ -15,9 +15,11 @@ import {DndContext, useSensor, useSensors, PointerSensor, DragOverlay} from '@dn
 import {DraggableItem, DroppableContainer} from "../DnDItems/DndItems";
 import getDesignToken from "antd/es/theme/getDesignToken";
 import {ThemeContext} from "../../../../App";
-import {editTask} from "../../../../redux/thunks/tasks";
+import {createNewTasks, editTask} from "../../../../redux/thunks/tasks";
 import {setTasks} from "../../../../redux/slices/tasksSlice";
 import {setCommands} from "../../../../redux/slices/commandsSlice";
+import {setCurrentTask} from "../../../../redux/slices/uiSlice";
+import TaskModal from "../TaskModal/TaskModal";
 
 
 interface CommandModalProps {
@@ -54,6 +56,8 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
 
     const [activeId, setActiveId] = useState(null);
     const [draggedTaskName, setDraggedTaskName] = useState<string>("")
+
+    const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false)
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -115,16 +119,6 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
         setAllTasks(tasksState.tasks)
         console.log("all tasks set")
     }, [tasksState.tasks])
-
-    const checkState = () => {
-        console.log('isParticipant', JSON.stringify(isParticipant, null, 2));
-        console.log('command', JSON.stringify(command, null, 2));
-        console.log('completeTasks', JSON.stringify(completeTasks, null, 2));
-        console.log('todoTasks', JSON.stringify(todoTasks, null, 2));
-        console.log('activeTasks', JSON.stringify(activeTasks, null, 2));
-        console.log('activeId', JSON.stringify(activeId, null, 2));
-        console.log('allTasks', JSON.stringify(allTasks, null, 2));
-    }
 
     const handleChangeCommandName = useCallback((str: string) => {
         dispatch(fetchChangeCommandName({
@@ -315,7 +309,6 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
                 messageApi.error("Не получилось изменить статус задачи")
             }
         })
-
         setActiveId(null);
     }
 
@@ -346,17 +339,61 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
         }
     }
 
+    const openTaskModal = useCallback((taskId: string) => {
+        dispatch(setCurrentTask(taskId))
+        setIsTaskModalOpen(true)
+    }, [])
+
+    const handleTaskModalCancel = useCallback(() => {
+        const editedTask: Task = tasksState.tasks.find(el => el.id == uiState.currentTask)
+        setAllTasks(allTasks.map(task => {
+            return task.id === editedTask.id ? editedTask : task
+        }))
+        switch (editedTask.state) {
+            case 'complete':
+                setCompleteTasks(completeTasks.map(task => {
+                    return task.id === editedTask.id ? editedTask : task
+                }))
+                break;
+            case 'active':
+                setActiveTasks(activeTasks.map(task => {
+                    return task.id === editedTask.id ? editedTask : task
+                }))
+                break;
+            case 'todo':
+                setTodoTasks(todoTasks.map(task => {
+                    return task.id === editedTask.id ? editedTask : task
+                }))
+                break;
+        }
+        setIsTaskModalOpen(false);
+    }, [completeTasks, activeTasks, todoTasks, allTasks, tasksState.tasks, uiState.currentTask])
+
     const createDraggableItem = (item: Task) => {
         return (
             <DraggableItem id={item.id} onDragStart={handleDragStart}>
                 <List.Item actions={[<CustomButton key={`${item.id}_inspect`} icon={<SearchOutlined/>}/>]}
-                           style={darkTheme ? itemStyle.dark : itemStyle.light} className={"draggableTask"}>
+                           style={darkTheme ? itemStyle.dark : itemStyle.light} className={"draggableTask"}
+                           onClick={() => openTaskModal(item.id)}>
                     <div style={{paddingLeft: "8px"}} className={"textInList"}>{item.name}</div>
                 </List.Item>
             </DraggableItem>
-
         )
     }
+
+    const addPlannedTask = useCallback(() => {
+        dispatch(createNewTasks()).then(unwrapResult).then((result) => {
+            if (result !== null) {
+                setTodoTasks(todoTasks.concat(result))
+                setAllTasks(allTasks.concat(result))
+            } else {
+                messageApi.error("Не удалось добавить задачу")
+            }
+        }).catch((e) => {
+            console.log('addPlannedTask', JSON.stringify(e, null, 2));
+            messageApi.error("Не удалось добавить задачу")
+        })
+    }, [todoTasks, allTasks])
 
     return (
         <Modal
@@ -418,7 +455,9 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
                     <CustomCard cardTitle={"Активные задачи"} hoverable={false} styles={{body: {padding: '0'}}}>
                         {createDroppableList({taskList: activeTasks, taskListName: "activeTasks"})}
                     </CustomCard>
-                    <CustomCard cardTitle={"Планируемые задачи"} hoverable={false} styles={{body: {padding: '0'}}}>
+                    <CustomCard cardTitle={"Планируемые задачи"} hoverable={false} styles={{body: {padding: '0'}}}
+                                extra={isParticipant || isCreator ?
+                                    <CustomButton onClick={addPlannedTask}>+</CustomButton> : null}>
                         {createDroppableList({taskList: todoTasks, taskListName: "todoTasks"})}
                     </CustomCard>
 
@@ -440,7 +479,9 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
                 </DndContext>
             </div>
             <Text>*для перетаскивания задачи нужно немного ее удерживать</Text>
-            <button onClick={checkState}>check</button>
+            <TaskModal isModalOpen={isTaskModalOpen} onCancel={handleTaskModalCancel}
+                       isParticipant={isCreator || isParticipant}></TaskModal>
+            {/*<button onClick={checkState}>check</button>*/}
         </Modal>
     )
 }

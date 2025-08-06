@@ -53,6 +53,12 @@ export interface Task {
     name: string,
     description: string,
     state: "complete" | "active" | "todo",
+    comments: Commentary[],
+}
+
+export interface Commentary {
+    email: string,
+    commentary: string,
 }
 
 export interface TasksState {
@@ -64,6 +70,7 @@ export interface TasksState {
 export interface UiState{
     currentProject: string;
     currentCommand: string;
+    currentTask: string;
 }
 
 export const darkThemeConfig: ThemeConfig = {

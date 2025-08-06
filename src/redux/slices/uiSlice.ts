@@ -4,7 +4,8 @@ import {createSlice} from "@reduxjs/toolkit";
 
 const initialUiState: UiState = {
     currentProject: '',
-    currentCommand: ''
+    currentCommand: '',
+    currentTask: ''
 }
 
 export const uiSlice = createSlice ({
@@ -16,8 +17,11 @@ export const uiSlice = createSlice ({
         },
         setCurrentCommand: (state, {payload}: { payload: string }) => {
             state.currentCommand = payload;
+        },
+        setCurrentTask: (state, {payload}: { payload: string }) => {
+            state.currentTask = payload;
         }
     }
 })
 
-export const {setCurrentProject, setCurrentCommand} = uiSlice.actions;
+export const {setCurrentProject, setCurrentCommand, setCurrentTask} = uiSlice.actions;

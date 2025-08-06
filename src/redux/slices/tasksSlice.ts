@@ -1,6 +1,12 @@
 import {Task, TasksState} from "../../types";
 import {createSlice} from "@reduxjs/toolkit";
-import {editTask, fetchUserTasks} from "../thunks/tasks";
+import {
+    createNewTasks,
+    editCurrentTaskDescription,
+    editCurrentTaskName,
+    editTask,
+    fetchUserTasks
+} from "../thunks/tasks";
 
 const initialSliceState: TasksState = {
     tasks: [],
@@ -15,8 +21,8 @@ export const tasksSlice = createSlice({
         setTasks(state, {payload}: { payload: Task[] }) {
             state.tasks = payload;
         },
-        createTask(state, {payload}: { payload: Task }) {
-            state.tasks = state.tasks.concat(payload);
+        addTask(state, {payload}: { payload: Task }) {
+            state.tasks.push(payload);
         }
     },
     extraReducers: (builder) => {
@@ -49,7 +55,51 @@ export const tasksSlice = createSlice({
             state.error = action.payload;
             state.isLoading = false;
         })
+        .addCase(createNewTasks.pending, (state) => {
+            console.log('createNewTasks.pending');
+            state.isLoading = true;
+            state.error = null
+        })
+        .addCase(createNewTasks.fulfilled, (state) => {
+            console.log('createNewTasks.fulfilled');
+            state.isLoading = false;
+        })
+        .addCase(createNewTasks.rejected, (state, action) => {
+            console.log('createNewTasks.rejected', JSON.stringify(action.payload, null, 2));
+            state.error = action.payload;
+            state.isLoading = false;
+        })
+        .addCase(editCurrentTaskName.pending, (state) => {
+            console.log('editCurrentTaskName.pending');
+            state.isLoading = true;
+            state.error = null
+        })
+        .addCase(editCurrentTaskName.fulfilled, (state) => {
+            console.log('editCurrentTaskName.fulfilled');
+            state.isLoading = false;
+        })
+        .addCase(editCurrentTaskName.rejected, (state, action) => {
+            console.log('editCurrentTaskName.rejected', JSON.stringify(action.payload, null, 2));
+            state.error = action.payload;
+            state.isLoading = false;
+        })
+        .addCase(editCurrentTaskDescription.pending, (state) => {
+            console.log('editCurrentTaskDescription.pending');
+            state.isLoading = true;
+            state.error = null
+        })
+        .addCase(editCurrentTaskDescription.fulfilled, (state) => {
+            console.log('editCurrentTaskDescription.fulfilled');
+            state.isLoading = false;
+        })
+        .addCase(editCurrentTaskDescription.rejected, (state, action) => {
+            console.log('editCurrentTaskDescription.rejected', JSON.stringify(action.payload, null, 2));
+            state.error = action.payload;
+            state.isLoading = false;
+        })
     }
 })
 
-export const {setTasks, createTask} = tasksSlice.actions;
+
+
+export const {setTasks, addTask} = tasksSlice.actions;
