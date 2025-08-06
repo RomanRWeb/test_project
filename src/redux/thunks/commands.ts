@@ -1,7 +1,7 @@
 import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
-import {fetchCurrentCommands, fetchEditCommand, fetchEditCommandUsers, fetchUserProject} from "../api";
-import {Command} from "../../types";
-import {setCommands} from "../slices/commandsSlice";
+import {fetchAddNewCommand, fetchCurrentCommands, fetchEditCommand, fetchEditCommandUsers} from "../api";
+import {Command, ReduxType} from "../../types";
+import {addCommands, setCommands} from "../slices/commandsSlice";
 
 
 export const fetchCommands = createAsyncThunk(
@@ -12,12 +12,15 @@ export const fetchCommands = createAsyncThunk(
         if (projectId !== ''){
             try{
                 const result = await fetchCurrentCommands(projectId);
+                console.log('result', JSON.stringify(result, null, 2));
                 if (result.ok){
                     const commandsList: Command[] = await result.json();
                     console.log('commandsList', JSON.stringify(commandsList, null, 2));
                     dispatch(setCommands(commandsList))
                     return commandsList
                 } else {
+                    dispatch(setCommands([]))
+                    console.log('result in else');
                     return rejectWithValue("Could not find command list");
                 }
             } catch (error) {
@@ -56,6 +59,27 @@ export const fetchChangeCommandUsers = createAsyncThunk(
                 const command: Command = await result.json();
                 console.log('command', JSON.stringify(command, null, 2));
                 return true;
+            } else {
+                return rejectWithValue("Could not change command");
+            }
+        } catch (error){
+            createAction(error)
+        }
+
+    }
+)
+
+export const fetchAddCommand = createAsyncThunk(
+    'commands/fetchChangeCommandUsers',
+    async (_, {dispatch, rejectWithValue, getState}) =>{
+        const state = getState() as ReduxType;
+        try {
+            const result = await fetchAddNewCommand(state.ui.currentProject);
+            if (result.ok){
+                const command: Command = await result.json();
+                console.log('command', JSON.stringify(command, null, 2));
+                dispatch(addCommands(command))
+                return command;
             } else {
                 return rejectWithValue("Could not change command");
             }

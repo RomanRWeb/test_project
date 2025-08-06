@@ -15,7 +15,7 @@ import {DndContext, useSensor, useSensors, PointerSensor, DragOverlay} from '@dn
 import {DraggableItem, DroppableContainer} from "../DnDItems/DndItems";
 import getDesignToken from "antd/es/theme/getDesignToken";
 import {ThemeContext} from "../../../../App";
-import {fetchUserTasks} from "../../../../redux/thunks/tasks";
+import {editTask} from "../../../../redux/thunks/tasks";
 import {setTasks} from "../../../../redux/slices/tasksSlice";
 
 
@@ -40,6 +40,7 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
     const {darkTheme, toggleTheme} = useContext(ThemeContext);
 
     const [command, setCommand] = useState<Command>({id: '0', name: '', projectId: '', userList: []});
+    const [allTasks, setAllTasks] = useState<Task[]>([]);
     const [activeTasks, setActiveTasks] = useState<Task[]>([]);
     const [completeTasks, setCompleteTasks] = useState<Task[]>([]);
     const [todoTasks, setTodoTasks] = useState<Task[]>([])
@@ -63,6 +64,7 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
     );
 
     useEffect(() => {
+        console.log('useEffect triggered');
         if (isModalOpen) {
             const command = commandsState.commands?.find((command) => command.id === uiState.currentCommand)
             setCommand(command)
@@ -70,13 +72,20 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
             if (isProjectCreator) {
                 setCreator(true)
             }
+            console.log('isProjectCreator', JSON.stringify(isProjectCreator, null, 2));
             const isCommandParticipant = command?.userList.some((userEmail) => userEmail === authState.user.email)
             if (isProjectCreator || isCommandParticipant) {
                 setParticipant(true)
             }
+            console.log('isCommandParticipant', JSON.stringify(isCommandParticipant, null, 2));
             setUserList(command?.userList)
             taskSort()
             setActiveId(null);
+        } else {
+            setAllTasks([])
+            setCompleteTasks([])
+            setActiveTasks([])
+            setTodoTasks([])
         }
     }, [isModalOpen]);
 
@@ -102,6 +111,8 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
         setCompleteTasks(sortedTasksArray.completedTasks)
         setTodoTasks(sortedTasksArray.todoTasks)
         setActiveTasks(sortedTasksArray.activeTasks)
+        setAllTasks(tasksState.tasks)
+        console.log("all tasks set")
     }, [tasksState.tasks])
 
     const checkState = () => {
@@ -111,6 +122,7 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
         console.log('todoTasks', JSON.stringify(todoTasks, null, 2));
         console.log('activeTasks', JSON.stringify(activeTasks, null, 2));
         console.log('activeId', JSON.stringify(activeId, null, 2));
+        console.log('allTasks', JSON.stringify(allTasks, null, 2));
     }
 
     const handleChangeCommandName = useCallback((str: string) => {
@@ -192,30 +204,96 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
         setAddUserLogin("")
     }, [])
 
-    const handleDragStart = useCallback((id) => {
+    const handleDragStart = (id) => {
         setActiveId(id);
-        console.log('Find task with id', JSON.stringify(id, null, 2));
-        console.log('tasksState.tasks', JSON.stringify(tasksState.tasks, null, 2));
-        const selectedTask: Task = tasksState.tasks.find(task => task.id === id)
-        console.log('selectedTask', JSON.stringify(selectedTask, null, 2));
-        setDraggedTaskName(selectedTask.name)
-    }, [tasksState.tasks]);
+        console.log('id', JSON.stringify(id, null, 2));
+        console.log('allTasks', JSON.stringify(allTasks, null, 2));
+        const selectedTask: Task = allTasks.find(task => task.id === id)
+        setDraggedTaskName(selectedTask?.name ? selectedTask.name : "")
+    };
 
     const handleDragEnd = (event) => {
         const {over} = event;
 
         if (!over || !activeId) return;
-        const taskEndContainer = over.id
-        const task: Task = tasksState.tasks.find(task => task.id === activeId);
+        const taskEndContainer: "completeTasks" | "activeTasks" | "todoTasks" = over.id
+        const task: Task = allTasks.find(task => task.id === activeId);
         const taskFrom: string = task.state;
+        const taskTo: string = taskEndContainer.slice(0, -5)
+        console.log('taskTo', JSON.stringify(taskTo, null, 2));
+        if (taskFrom === taskTo) return;
+
         console.log('taskEndContainer', JSON.stringify(taskEndContainer, null, 2));
         console.log('taskFrom', JSON.stringify(taskFrom, null, 2));
         console.log('task', JSON.stringify(task, null, 2));
-        //
+        let newState: string = ''
+
+        switch (taskEndContainer) {
+            case 'completeTasks':
+                newState = 'complete'
+                break;
+            case 'activeTasks':
+                newState = 'active'
+                break;
+            case 'todoTasks':
+                newState = 'todo'
+                break;
+        }
+
+        console.log('newState', JSON.stringify(newState, null, 2));
+
+        dispatch(editTask({id: task.id, state: newState})).then(unwrapResult).then((result) => {
+            if (result != null) {
+                const fetchedTask: Task = result
+                const newTaskList: Task[] = allTasks.map(task => task.id === fetchedTask.id ? fetchedTask : task)
+                setAllTasks(newTaskList);
+                dispatch(setTasks(newTaskList))
+                console.log('fetchedTask.state', JSON.stringify(fetchedTask.state, null, 2));
+                //add task to new container
+                let newTasksList: Task[] = [];
+                switch (taskEndContainer) {
+                    case 'completeTasks':
+                        newTasksList = completeTasks
+                        newTasksList.push(fetchedTask)
+                        setCompleteTasks(newTasksList)
+                        break;
+                    case 'activeTasks':
+                        newTasksList = activeTasks
+                        newTasksList.push(fetchedTask)
+                        setActiveTasks(newTasksList)
+                        break;
+                    case 'todoTasks':
+                        newTasksList = todoTasks
+                        newTasksList.push(fetchedTask)
+                        setTodoTasks(newTasksList)
+                        break;
+                }
+                console.log(`Added to ${taskEndContainer}`, JSON.stringify(newTasksList, null, 2));
+                //delete task from previous container
+                switch (taskFrom) {
+                    case 'complete':
+                        newTasksList = completeTasks.filter(taskInList => taskInList.id !== fetchedTask.id)
+                        setCompleteTasks(newTasksList)
+                        break;
+                    case 'active':
+                        newTasksList = activeTasks.filter(taskInList => taskInList.id !== fetchedTask.id)
+                        setActiveTasks(newTasksList)
+                        break;
+                    case 'todo':
+                        newTasksList = todoTasks.filter(taskInList => taskInList.id !== fetchedTask.id)
+                        setTodoTasks(newTasksList)
+                        break;
+                }
+                console.log(`Deleted from ${taskFrom}`, JSON.stringify(newTasksList, null, 2));
+            } else {
+                messageApi.error("Не получилось изменить статус задачи")
+            }
+        })
+
         setActiveId(null);
     }
 
-    const createDroppableList = useCallback(({taskList, taskListName}: { taskList: Task[], taskListName: string }) => {
+    const createDroppableList = ({taskList, taskListName}: { taskList: Task[], taskListName: string }) => {
         return (
             <DroppableContainer id={taskListName}>
                 <List
@@ -228,17 +306,17 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
                 </List>
             </DroppableContainer>
         )
-    }, [tasksState.isLoading])
+    }
 
     const DarkToken = getDesignToken(darkThemeConfig);
     const LightToken = getDesignToken(lightThemeConfig);
 
     const itemStyle = {
         dark: {
-            border: `1px solid ${DarkToken.colorTextBase}`,
+            border: `1px solid ${DarkToken.colorBorder}`,
         },
         light: {
-            border: `1px solid ${LightToken.colorTextBase}`,
+            border: `1px solid ${LightToken.colorBorder}`,
         }
     }
 
@@ -247,9 +325,10 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
             <DraggableItem id={item.id} onDragStart={handleDragStart}>
                 <List.Item actions={[<CustomButton key={`${item.id}_inspect`} icon={<SearchOutlined/>}/>]}
                            style={darkTheme ? itemStyle.dark : itemStyle.light} className={"draggableTask"}>
-                    <div style={{paddingLeft: "8px"}}>{item.name}</div>
+                    <div style={{paddingLeft: "8px"}} className={"textInList"}>{item.name}</div>
                 </List.Item>
             </DraggableItem>
+
         )
     }
 
@@ -286,7 +365,7 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
                             <List.Item actions={isCreator ? [<CustomButton icon={<UserDeleteOutlined/>}
                                                                            key={`userButton_${user}`}
                                                                            onClick={() => deleteUser(user)}/>] : []}>
-                                <div>{user}</div>
+                                <div style={{textWrap: "stable"}} className={"textInList"}>{user}</div>
                             </List.Item>
                         )}>
                         {addUserState ? <Flex style={{width: '100%'}} gap={"0.5rem"}>

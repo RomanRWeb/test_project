@@ -14,10 +14,12 @@ export const commandsSlice = createSlice({
     initialState: initialCommandsState,
     reducers: {
         setCommands: (state, {payload}: { payload: Command[] }) => {
+            console.log('setCommands called');
+            console.log('payload', JSON.stringify(payload, null, 2));
             state.commands = payload;
         },
         addCommands: (state, {payload}: { payload: Command }) => {
-            state.commands = state.commands.concat(payload);
+            state.commands.push(payload);
         }
     },
     extraReducers: (builder) => {

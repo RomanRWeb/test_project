@@ -27,3 +27,11 @@
     border-radius: 8px;
     margin-bottom: 8px;
 }
+
+ul .ant-list-item-action{
+    margin-inline-start: 0 !important;
+}
+
+.textInList {
+    max-width: calc(100% - 50px);
+}

@@ -70,6 +70,16 @@ export const fetchCurrentCommands = async (projectId: string) => {
     })
 }
 
+export const fetchAddNewCommand = async (projectId: string) => {
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projectId}`);
+
+    return fetch(url, {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({name: "new command"})
+    })
+}
+
 export const fetchEditCommand = async (projectId: string, commandId: string, commandName: string) => {
     const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projectId}/commands/${commandId}`);
 

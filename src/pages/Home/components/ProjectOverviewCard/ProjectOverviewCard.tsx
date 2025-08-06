@@ -1,11 +1,11 @@
 import * as React from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {CustomCard} from "../../../../components/CustomCard/CustomCard";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../../../store";
 import {Collapse, Divider, Flex, List, message, Skeleton, Spin, Typography} from "antd";
-import {useCallback, useEffect, useMemo, useState} from "react";
-import {Command, Project, ProjectCard} from "../../../../types";
-import {ReloadOutlined, EditOutlined, CaretRightOutlined, LoadingOutlined} from '@ant-design/icons';
+import {Command, Project, Task} from "../../../../types";
+import {CaretRightOutlined, EditOutlined, LoadingOutlined, ReloadOutlined} from '@ant-design/icons';
 import {editProject} from "../../../../redux/thunks/projects";
 import {unwrapResult} from "@reduxjs/toolkit";
 import CustomButton from "../../../../components/CustomButton/CustomButton";
@@ -13,7 +13,13 @@ import "./projectOverviewCard.css"
 import {setCurrentCommand} from "../../../../redux/slices/uiSlice";
 import CommandModal from "../CommandModal/CommandModal";
 
-export const ProjectOverviewCard = ({project, commands, tasks, reloadFunc}: ProjectCard) => {
+interface ProjectCard {
+    reloadFunc: () => void;
+    project: Project;
+    isCreator: boolean;
+}
+
+export const ProjectOverviewCard = ({project, reloadFunc, isCreator}: ProjectCard) => {
 
     const projectState = useSelector((state: RootState) => state.projects);
     const commandsState = useSelector((state: RootState) => state.commands);
@@ -27,15 +33,14 @@ export const ProjectOverviewCard = ({project, commands, tasks, reloadFunc}: Proj
     const [command, setCommand] = useState<Command>({id: '0', name: '', projectId: '', userList: []});
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleClick = useCallback(() => {
-        console.log('-------------------------------------------------')
-        console.log('projectState', JSON.stringify(projectState, null, 2));
-        console.log('project', JSON.stringify(project, null, 2));
-        console.log('commandsState', JSON.stringify(commandsState, null, 2));
-        console.log('commands', JSON.stringify(commands, null, 2));
-        console.log('uiState', JSON.stringify(uiState, null, 2));
-        console.log('-------------------------------------------------')
-    }, [projectState, uiState, project, commands, commandsState]);
+    // const handleClick = useCallback(() => {
+    //     console.log('-------------------------------------------------')
+    //     console.log('projectState', JSON.stringify(projectState, null, 2));
+    //     console.log('project', JSON.stringify(project, null, 2));
+    //     console.log('commandsState', JSON.stringify(commandsState, null, 2));
+    //     console.log('uiState', JSON.stringify(uiState, null, 2));
+    //     console.log('-------------------------------------------------')
+    // }, [projectState, uiState, project, commandsState]);
 
     const handleChangeProjectName = useCallback((str: string) => {
         console.log('start redact dispatch');
@@ -81,6 +86,36 @@ export const ProjectOverviewCard = ({project, commands, tasks, reloadFunc}: Proj
         setIsModalOpen(false);
     }, [])
 
+    const handleAddCommand = useCallback(() => {
+        console.log('add button pressd');
+    }, [])
+
+    const createActiveTask = useMemo(() => {
+        const activeTasks = tasksState.tasks.filter((el) => el.state === "active");
+        return activeTasks.map(task => ({
+            key: task.id,
+            label: task.name,
+            children: <p>{task.description}</p>
+        }));
+    }, [tasksState.tasks]);
+
+    const createCommandItem = (item: Command) => {
+        return (
+            <List.Item style={{padding: '8px'}}>
+                <CustomCard style={{width: "100%", minHeight: "80px"}}
+                            hoverable={true}
+                            loading={commandsState.isLoading}
+                            size="small"
+                            onCardClickFunc={() => handleCardClick(item)}
+                >
+                    <Flex vertical={false} justify={"space-between"}>
+                        <Title level={3}>{item.name}</Title>
+                    </Flex>
+                </CustomCard>
+            </List.Item>
+        )
+    }
+
     return (
         <CustomCard hoverable={false}>
             {contextHolder}
@@ -98,33 +133,26 @@ export const ProjectOverviewCard = ({project, commands, tasks, reloadFunc}: Proj
             </Skeleton>
             <div className={"projectCommandsOverview"}>
                 <Flex vertical={true}>
-                    <Text>Команды проекта:</Text>
-                    <List
-                        split={false}
-                        loading={commandsState.isLoading}
-                        itemLayout="horizontal"
-                        dataSource={commands}
-                        renderItem={(item) => (
-                            <List.Item style={{padding: '8px'}}>
-                                <CustomCard style={{width: "100%", minHeight: "80px"}}
-                                            hoverable={true}
-                                            loading={commandsState.isLoading}
-                                            size="small"
-                                            onCardClickFunc={() => handleCardClick(item)}
-                                >
-                                    <Flex vertical={false} justify={"space-between"}>
-                                        <Title level={3}>{item.name}</Title>
-                                        {/**/}
-                                    </Flex>
-                                </CustomCard>
-                            </List.Item>
-                        )}
-                    />
+                    <CustomCard cardTitle={"Команды проекта"} hoverable={false} styles={{body: {padding: '0'}}}>
+                        <List
+                            split={false}
+                            loading={commandsState.isLoading}
+                            itemLayout="horizontal"
+                            dataSource={commandsState.commands}
+                            renderItem={(command) => createCommandItem(command)}
+                        >
+                            {isCreator ?
+                                <List.Item style={{padding: '8px'}}>
+                                    <CustomButton onClick={handleAddCommand} style={{flex: "1"}}>+</CustomButton>
+                                </List.Item> : null}
+                        </List>
+                    </CustomCard>
                 </Flex>
                 <Flex vertical={true}>
-                    {command.id != '0' ? <>
+                    {command.id != '0' ?
+                        <>
                             <Flex justify={"space-between"}>
-                                <Skeleton loading={commandsState.isLoading} >
+                                <Skeleton loading={commandsState.isLoading}>
                                     <Title level={3}>{command.name}</Title>
                                     <CustomButton type={"link"} onClick={showModal}>ещё</CustomButton>
                                 </Skeleton>
@@ -132,41 +160,38 @@ export const ProjectOverviewCard = ({project, commands, tasks, reloadFunc}: Proj
 
                             <Text>Активные задачи:</Text>
                             <Divider size={"middle"}/>
-                            {!tasksState.isLoading ? <Collapse
-                                bordered={false}
-                                accordion={true}
-                                expandIcon={({isActive}) => <CaretRightOutlined rotate={isActive ? 90 : 0}/>}
-                                // style={{ background: token.colorBgContainer }}
-                                items={tasks?.map(task => (
-                                    {
-                                        key: task.id,
-                                        label: task.name,
-                                        children: <p>{task.description}</p>,
-                                    }
-                                ))}
-                            /> : <Spin indicator={<LoadingOutlined spin/>}/>}
-                            {/*<button onClick={()=>{console.log('tasks', JSON.stringify(tasks, null, 2));}}>tasks</button>*/}
-                            {!tasks && !tasksState.isLoading ? <Text>Сейчас активных задач нет</Text> : null}
+                            {!tasksState.isLoading ?
+                                <Collapse
+                                    bordered={false}
+                                    accordion={true}
+                                    expandIcon={({isActive}) => <CaretRightOutlined rotate={isActive ? 90 : 0}/>}
+                                    items={createActiveTask}
+                                /> :
+                                <Spin indicator={<LoadingOutlined spin/>}/>
+                            }
+                            {!tasksState.tasks && !tasksState.isLoading ? <Text>Сейчас активных задач нет</Text> : null}
                             <Divider size={"middle"}/>
                             <Text>Участники:</Text>
-                            {!commandsState.isLoading ? <List
-                                loading={commandsState.isLoading}
-                                itemLayout="horizontal"
-                                dataSource={command.userList}
-                                renderItem={(user) => (
-                                    <List.Item>
-                                        <Text key={user}>{user}</Text>
-                                    </List.Item>
-                                )}
-                            /> : <Spin indicator={<LoadingOutlined spin/>}/>}
-                            {/*{command?.userList.length == 0 && !commandsState.isLoading ? <Text>Участников в этой команде нет</Text> : null}*/}
+                            {!commandsState.isLoading ?
+                                <List
+                                    loading={commandsState.isLoading}
+                                    itemLayout="horizontal"
+                                    dataSource={command.userList}
+                                    renderItem={(user) => (
+                                        <List.Item>
+                                            <Text key={user}>{user}</Text>
+                                        </List.Item>
+                                    )}
+                                /> :
+                                <Spin indicator={<LoadingOutlined spin/>}/>
+                            }
                         </>
                         : <Title level={4} style={{flex: "1 1 auto", textAlign: "center", alignContent: "center"}}>Выберите
                             команду</Title>
                     }
                 </Flex>
             </div>
-            <button onClick={handleClick}>check state</button>
+            {/*<button onClick={handleClick}>check state</button>*/}
             <CommandModal isModalOpen={isModalOpen} handleCancel={handleCancel}/>
         </CustomCard>
     )

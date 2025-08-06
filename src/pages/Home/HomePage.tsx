@@ -12,6 +12,7 @@ import {createNewProject, fetchProject} from "../../redux/thunks/projects";
 import {unwrapResult} from "@reduxjs/toolkit";
 import {fetchCommands} from "../../redux/thunks/commands";
 import {fetchUserTasks} from "../../redux/thunks/tasks";
+import {setTasks} from "../../redux/slices/tasksSlice";
 
 const HomePage: React.FC = () => {
 
@@ -20,6 +21,7 @@ const HomePage: React.FC = () => {
     const uiState = useSelector((state: RootState) => state.ui)
     const projectState = useSelector((state: RootState) => state.projects)
     const commandsState = useSelector((state: RootState) => state.commands);
+    const tasksState = useSelector((state: RootState) => state.tasks)
 
     const [items, setItems] = useState(projectState.projects);
     const [activeKey, setActiveKey] = useState(null);
@@ -30,6 +32,7 @@ const HomePage: React.FC = () => {
     const [activeProject, setActiveProject] = useState<Project>(initProjectState);
     const [activeCommands, setActiveCommands] = useState<Command[]>([]);
     const [activeTasks, setActiveTasks] = useState<Task[]>([]);
+    const [isCreator, setIsCreator] = useState<boolean>(false);
 
     useEffect(() => {
         let currentProject = uiState.currentProject;
@@ -60,7 +63,7 @@ const HomePage: React.FC = () => {
                 console.log('result', JSON.stringify(result, null, 2));
                 if (result !== null) {
                     elFromStore = result
-                    getCurrentCommands()
+                    // getCurrentCommands()
                 } else {
                     elFromStore = {id: uiState.currentProject, name: 'Placeholder', creatorId: ''};
                     messageApi.error("Не получилось загрузить проект");
@@ -75,7 +78,7 @@ const HomePage: React.FC = () => {
             //         return acc
             //     }
             // },[])
-            getCurrentCommands()
+            // getCurrentCommands()
             setActiveProject(elFromStore)
         }
     }, [uiState.currentProject]);
@@ -86,33 +89,56 @@ const HomePage: React.FC = () => {
 
     useEffect(() => {
         setActiveKey(uiState.currentProject)
+        const currProject = projectState.projects.find(el => el.id === uiState.currentProject)
+        if (currProject?.creatorId === authState.user.id) {
+            setIsCreator(true)
+            console.log('creator this project');
+        }
     }, [uiState.currentProject]);
 
     useEffect(() => {
-        if (uiState.currentCommand !== ''){
-            getCurrentCommands()
+        if (uiState.currentCommand !== '') {
+            // getCurrentCommands()
             console.log('uiState.currentCommand', JSON.stringify(uiState.currentCommand, null, 2));
-            dispatch(fetchUserTasks()).then(unwrapResult).then((result)=>{
-                if (result !== null){
+            dispatch(fetchUserTasks()).then(unwrapResult).then((result) => {
+                if (result !== null) {
                     console.log('taskChecking');
                     console.log('All tasks', JSON.stringify(result, null, 2));
-                    const activeTasks = result?.filter(task => task.state === "active");
-                    console.log('activeTasks', JSON.stringify(activeTasks, null, 2));
-                    setActiveTasks(activeTasks)
+                    dispatch(setTasks(result));
                 } else {
                     messageApi.error("Не получилось загрузить задачи");
                 }
             })
         }
-    }, [uiState.currentCommand]);
+    }, [uiState?.currentCommand]);
 
-    const getCurrentCommands = useCallback(()=>{
-        dispatch(fetchCommands(uiState.currentProject)).then(unwrapResult).then((result)=>{
-            if (result !== null){
+    useEffect(() => {
+        const activeTasks = tasksState.tasks.filter(task => task.state === "active");
+        console.log('activeTasks', JSON.stringify(activeTasks, null, 2));
+        setActiveTasks(activeTasks)
+    }, [tasksState.tasks])
+
+    useEffect(() => {
+        console.log('fetch command start')
+        dispatch(fetchCommands(uiState.currentProject)).then(unwrapResult).then((result) => {
+            if (result !== null) {
                 setActiveCommands(result)
             } else {
                 messageApi.error("Не получилось загрузить команды проекта")
             }
+        })
+    }, [uiState.currentProject]);
+
+    const getCurrentCommands = useCallback(() => {
+        dispatch(fetchCommands(uiState.currentProject)).then(unwrapResult).then((result) => {
+            if (result !== null) {
+                setActiveCommands(result)
+            } else {
+                messageApi.error("Не получилось загрузить команды проекта")
+            }
+        }).catch((rejectedValueOrSerializedError) => {
+            console.log('rejectedValueOrSerializedError', JSON.stringify(rejectedValueOrSerializedError, null, 2));
+            // handle error here
         })
     }, [uiState.currentProject])
 
@@ -169,12 +195,14 @@ const HomePage: React.FC = () => {
                         return {
                             label: `${project.name}`,
                             key: id,
-                            children: <ProjectOverviewCard project={activeProject} commands={activeCommands} tasks={activeTasks} reloadFunc={reloadProject}/>,
+                            children: <ProjectOverviewCard project={activeProject} reloadFunc={reloadProject}
+                                                           isCreator={isCreator}/>,
                             closable: false,
                         };
                     })}/>
                 {authState.user.projectsList.length == 0 ?
-                    <Flex justify={"center"} align={'center'} gap={"middle"} vertical={true} style={{minHeight: "50vh"}}>
+                    <Flex justify={"center"} align={'center'} gap={"middle"} vertical={true}
+                          style={{minHeight: "50vh"}}>
                         <Text>
                             Сейчас у вас нет проектов, вы можете его создать или подождать пока вас добавят в уже
                             существующий.

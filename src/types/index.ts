@@ -66,13 +66,6 @@ export interface UiState{
     currentCommand: string;
 }
 
-export interface ProjectCard {
-    reloadFunc: () => void;
-    project: Project;
-    commands: Command[];
-    tasks: Task[];
-}
-
 export const darkThemeConfig: ThemeConfig = {
     token: {
         colorPrimary: '#fdfdfd',
