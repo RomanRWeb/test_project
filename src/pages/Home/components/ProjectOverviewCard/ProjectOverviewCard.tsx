@@ -12,6 +12,7 @@ import CustomButton from "../../../../components/CustomButton/CustomButton";
 import "./projectOverviewCard.css"
 import {setCurrentCommand} from "../../../../redux/slices/uiSlice";
 import CommandModal from "../CommandModal/CommandModal";
+import {fetchAddCommand} from "../../../../redux/thunks/commands";
 
 interface ProjectCard {
     reloadFunc: () => void;
@@ -87,12 +88,19 @@ export const ProjectOverviewCard = ({project, reloadFunc, isCreator}: ProjectCar
     }, [])
 
     const handleAddCommand = useCallback(() => {
-        console.log('add button pressd');
+        dispatch(fetchAddCommand()).then(unwrapResult).then((result: Command) => {
+            if (result !== null) {
+                console.log('new command', JSON.stringify(result, null, 2));
+            }
+            else {
+                messageApi.error("Не получилось создать команду")
+            }
+        })
     }, [])
 
     const createActiveTask = useMemo(() => {
-        const activeTasks = tasksState.tasks.filter((el) => el.state === "active");
-        return activeTasks.map(task => ({
+        const activeTasks = tasksState.tasks?.filter((el) => el.state === "active");
+        return activeTasks?.map(task => ({
             key: task.id,
             label: task.name,
             children: <p>{task.description}</p>
@@ -169,7 +177,7 @@ export const ProjectOverviewCard = ({project, reloadFunc, isCreator}: ProjectCar
                                 /> :
                                 <Spin indicator={<LoadingOutlined spin/>}/>
                             }
-                            {!tasksState.tasks && !tasksState.isLoading ? <Text>Сейчас активных задач нет</Text> : null}
+                            {!tasksState.tasks && !tasksState.isLoading ? <Text style={{display: 'flex', justifyContent: 'center'}}>Сейчас активных задач нет</Text> : null}
                             <Divider size={"middle"}/>
                             <Text>Участники:</Text>
                             {!commandsState.isLoading ?

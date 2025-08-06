@@ -51,13 +51,13 @@ export const fetchEditProject = async (project: Project) => {
     })
 }
 
-export const fetchNewProject = async (project: Project) => {
+export const fetchNewProject = async (project: Project, userId: string) => {
     const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/`);
 
     return fetch(url, {
         method: 'POST',
         headers: {'content-type': 'application/json'},
-        body: JSON.stringify({name: project.name})
+        body: JSON.stringify({name: project.name, creatorId: userId})
     })
 }
 
@@ -71,7 +71,7 @@ export const fetchCurrentCommands = async (projectId: string) => {
 }
 
 export const fetchAddNewCommand = async (projectId: string) => {
-    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projectId}`);
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projectId}/commands`);
 
     return fetch(url, {
         method: 'POST',

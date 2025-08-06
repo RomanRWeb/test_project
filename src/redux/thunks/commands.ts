@@ -70,7 +70,7 @@ export const fetchChangeCommandUsers = createAsyncThunk(
 )
 
 export const fetchAddCommand = createAsyncThunk(
-    'commands/fetchChangeCommandUsers',
+    'commands/fetchAddCommand',
     async (_, {dispatch, rejectWithValue, getState}) =>{
         const state = getState() as ReduxType;
         try {
@@ -81,7 +81,7 @@ export const fetchAddCommand = createAsyncThunk(
                 dispatch(addCommands(command))
                 return command;
             } else {
-                return rejectWithValue("Could not change command");
+                return rejectWithValue("Could not add command");
             }
         } catch (error){
             createAction(error)

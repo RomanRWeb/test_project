@@ -1,6 +1,6 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {Command, CommandsState} from "../../types";
-import {fetchChangeCommandName, fetchChangeCommandUsers, fetchCommands} from "../thunks/commands";
+import {fetchAddCommand, fetchChangeCommandName, fetchChangeCommandUsers, fetchCommands} from "../thunks/commands";
 
 
 const initialCommandsState: CommandsState = {
@@ -15,7 +15,6 @@ export const commandsSlice = createSlice({
     reducers: {
         setCommands: (state, {payload}: { payload: Command[] }) => {
             console.log('setCommands called');
-            console.log('payload', JSON.stringify(payload, null, 2));
             state.commands = payload;
         },
         addCommands: (state, {payload}: { payload: Command }) => {
@@ -63,6 +62,20 @@ export const commandsSlice = createSlice({
             })
             .addCase(fetchChangeCommandUsers.rejected, (state, action) => {
                 console.log('fetchChangeCommandUsers.rejected', JSON.stringify(action.payload, null, 2));
+                state.error = action.payload;
+                state.isLoading = false;
+            })
+            .addCase(fetchAddCommand.pending, (state) => {
+                console.log('fetchAddCommand.pending');
+                state.isLoading = true;
+                state.error = null
+            })
+            .addCase(fetchAddCommand.fulfilled, (state) => {
+                console.log('fetchAddCommand.fulfilled');
+                state.isLoading = false;
+            })
+            .addCase(fetchAddCommand.rejected, (state, action) => {
+                console.log('fetchAddCommand.rejected', JSON.stringify(action.payload, null, 2));
                 state.error = action.payload;
                 state.isLoading = false;
             })

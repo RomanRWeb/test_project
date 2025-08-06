@@ -40,7 +40,7 @@ export const createNewProject = createAsyncThunk(
         const state = getState() as ReduxType;
         console.log('state', JSON.stringify(state, null, 2));
         try {
-            const result = await fetchNewProject(project);
+            const result = await fetchNewProject(project, state.auth.user.id);
             if (result.ok) {
                 const project: Project = await result.json();
                 console.log('project', JSON.stringify(project, null, 2));

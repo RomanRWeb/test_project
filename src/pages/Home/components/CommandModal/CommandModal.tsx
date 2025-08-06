@@ -17,6 +17,7 @@ import getDesignToken from "antd/es/theme/getDesignToken";
 import {ThemeContext} from "../../../../App";
 import {editTask} from "../../../../redux/thunks/tasks";
 import {setTasks} from "../../../../redux/slices/tasksSlice";
+import {setCommands} from "../../../../redux/slices/commandsSlice";
 
 
 interface CommandModalProps {
@@ -108,9 +109,9 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
             completedTasks: Task[],
             todoTasks: Task[]
         })
-        setCompleteTasks(sortedTasksArray.completedTasks)
-        setTodoTasks(sortedTasksArray.todoTasks)
-        setActiveTasks(sortedTasksArray.activeTasks)
+        setCompleteTasks(sortedTasksArray?.completedTasks)
+        setTodoTasks(sortedTasksArray?.todoTasks)
+        setActiveTasks(sortedTasksArray?.activeTasks)
         setAllTasks(tasksState.tasks)
         console.log("all tasks set")
     }, [tasksState.tasks])
@@ -161,6 +162,17 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
                     userList: newUsersList
                 })).then(unwrapResult).then((result) => {
                     if (result === true) {
+                        const newCommandsList = commandsState.commands.map(command => {
+                            if (command.id === uiState.currentCommand) {
+                                return {
+                                    id: command.id,
+                                    name: command.name,
+                                    userList: newUsersList,
+                                    projectId: command.projectId
+                                } as Command
+                            } else return command
+                        })
+                        dispatch(setCommands(newCommandsList))
                         setUserList(newUsersList);
                         setAddUserState(false)
                         setAddUserLogin("")
@@ -172,6 +184,9 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
             } else {
                 messageApi.error("Что-то пошло не так, проверьте логин пользователя и повторите еще раз")
             }
+        }).catch((e) => {
+            messageApi.error("Что-то пошло не так, проверьте логин пользователя и повторите еще раз")
+            console.log('e', JSON.stringify(e, null, 2));
         })
     }, [command?.id, addUserLogin])
 
@@ -188,6 +203,17 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
                 })).then(unwrapResult).then((result) => {
                     if (result === true) {
                         setUserList(newUsersList);
+                        const newCommandsList = commandsState.commands.map(command => {
+                            if (command.id === uiState.currentCommand) {
+                                return {
+                                    id: command.id,
+                                    name: command.name,
+                                    userList: newUsersList,
+                                    projectId: command.projectId
+                                } as Command
+                            } else return command
+                        })
+                        dispatch(setCommands(newCommandsList))
                         messageApi.success("пользователь успешно удален")
                     } else {
                         messageApi.error("Не получилось удалить пользователя из команды")
@@ -350,8 +376,8 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
             <Title level={2} editable={isCreator ? editConfig : false}>{command?.name}</Title>
             <Divider size={"middle"}></Divider>
             <Space direction={"vertical"} size={0} style={{"width": "100%"}}>
-                <Text>Количество активных задач: {activeTasks.length}</Text>
-                <Text>Количество выполненных задач: {completeTasks.length}</Text>
+                <Text>Количество активных задач: {activeTasks?.length}</Text>
+                <Text>Количество выполненных задач: {completeTasks?.length}</Text>
                 <CustomCard cardTitle={"Список участников"} hoverable={false}
                             style={{minWidth: "200px", maxWidth: "600px"}} extra={isCreator ?
                     <CustomButton onClick={() => setAddUserState(true)} size={"middle"}>+</CustomButton> : <></>}>

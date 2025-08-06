@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {useCallback, useEffect, useState} from "react";
 import {Flex, message, Tabs, Typography} from "antd";
 import "./HomePage.css"
-import {Command, Project, Task} from "../../types";
+import {Project} from "../../types";
 import {setCurrentProject} from "../../redux/slices/uiSlice";
 import ProjectOverviewCard from "./components/ProjectOverviewCard/ProjectOverviewCard";
 import {createNewProject, fetchProject} from "../../redux/thunks/projects";
@@ -30,8 +30,6 @@ const HomePage: React.FC = () => {
 
     const initProjectState: Project = {id: uiState.currentProject, name: 'Placeholder', creatorId: ''}
     const [activeProject, setActiveProject] = useState<Project>(initProjectState);
-    const [activeCommands, setActiveCommands] = useState<Command[]>([]);
-    const [activeTasks, setActiveTasks] = useState<Task[]>([]);
     const [isCreator, setIsCreator] = useState<boolean>(false);
 
     useEffect(() => {
@@ -63,7 +61,6 @@ const HomePage: React.FC = () => {
                 console.log('result', JSON.stringify(result, null, 2));
                 if (result !== null) {
                     elFromStore = result
-                    // getCurrentCommands()
                 } else {
                     elFromStore = {id: uiState.currentProject, name: 'Placeholder', creatorId: ''};
                     messageApi.error("Не получилось загрузить проект");
@@ -73,12 +70,6 @@ const HomePage: React.FC = () => {
             })
         } else {
             console.log('commandsState.commands', JSON.stringify(commandsState.commands, null, 2));
-            // const newCommandList = commandsState.commands.reduce((acc: Command[], el: Command)=>{
-            //     if (el.projectId === elFromStore.id){
-            //         return acc
-            //     }
-            // },[])
-            // getCurrentCommands()
             setActiveProject(elFromStore)
         }
     }, [uiState.currentProject]);
@@ -89,11 +80,12 @@ const HomePage: React.FC = () => {
 
     useEffect(() => {
         setActiveKey(uiState.currentProject)
-        const currProject = projectState.projects.find(el => el.id === uiState.currentProject)
-        if (currProject?.creatorId === authState.user.id) {
-            setIsCreator(true)
-            console.log('creator this project');
-        }
+        // const currProject = projectState.projects.find(el => el.id === uiState.currentProject)
+        // if (currProject?.creatorId === authState.user.id) {
+        //     setIsCreator(true)
+        //     console.log('creator this project');
+        // }
+        // console.log("set isCreator useEffect called", currProject);
     }, [uiState.currentProject]);
 
     useEffect(() => {
@@ -113,27 +105,25 @@ const HomePage: React.FC = () => {
     }, [uiState?.currentCommand]);
 
     useEffect(() => {
-        const activeTasks = tasksState.tasks.filter(task => task.state === "active");
+        const activeTasks = tasksState.tasks?.filter(task => task.state === "active");
         console.log('activeTasks', JSON.stringify(activeTasks, null, 2));
-        setActiveTasks(activeTasks)
     }, [tasksState.tasks])
 
     useEffect(() => {
         console.log('fetch command start')
         dispatch(fetchCommands(uiState.currentProject)).then(unwrapResult).then((result) => {
-            if (result !== null) {
-                setActiveCommands(result)
-            } else {
+            if (result === null) {
                 messageApi.error("Не получилось загрузить команды проекта")
             }
+        }).catch((rejectedValueOrSerializedError) => {
+            console.log('rejectedValueOrSerializedError', JSON.stringify(rejectedValueOrSerializedError, null, 2));
+            // handle error here
         })
     }, [uiState.currentProject]);
 
     const getCurrentCommands = useCallback(() => {
         dispatch(fetchCommands(uiState.currentProject)).then(unwrapResult).then((result) => {
-            if (result !== null) {
-                setActiveCommands(result)
-            } else {
+            if (result === null){
                 messageApi.error("Не получилось загрузить команды проекта")
             }
         }).catch((rejectedValueOrSerializedError) => {
@@ -173,6 +163,13 @@ const HomePage: React.FC = () => {
     const onChange = (newActiveProject: string) => {
         console.log('newActiveProject', JSON.stringify(newActiveProject, null, 2));
         dispatch(setCurrentProject(newActiveProject))
+        const currProject = projectState.projects.find(el => el.id === newActiveProject)
+        if (currProject?.creatorId === authState.user.id) {
+            setIsCreator(true)
+            console.log('creator this project');
+        } else {
+            setIsCreator(false)
+        }
     };
 
     const onEdit = () => {
