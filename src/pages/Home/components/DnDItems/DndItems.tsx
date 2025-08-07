@@ -1,5 +1,6 @@
 import React from 'react';
 import {useDraggable, useDroppable} from '@dnd-kit/core';
+import './DndItems.css'
 
 interface DroppableProps {
     id: string;
@@ -19,11 +20,12 @@ export function DroppableContainer({id, children}: DroppableProps) {
         backgroundColor: !isOver ? 'transparent' : 'rgba(255,255,255,0.2)',
         minHeight: "200px",
         height: "100%",
+        maxHeight: "600px",
         paddingInline: "16px",
     };
 
     return (
-        <div ref={setNodeRef} style={style}>
+        <div ref={setNodeRef} style={style} className={"scrollableContainer"}>
             {children}
         </div>
     );

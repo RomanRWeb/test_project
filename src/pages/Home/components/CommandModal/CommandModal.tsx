@@ -20,6 +20,7 @@ import {setTasks} from "../../../../redux/slices/tasksSlice";
 import {setCommands} from "../../../../redux/slices/commandsSlice";
 import {setCurrentTask} from "../../../../redux/slices/uiSlice";
 import TaskModal from "../TaskModal/TaskModal";
+import TaskFindModal from "../TaskFindModal/TaskFindModal";
 
 
 interface CommandModalProps {
@@ -58,6 +59,7 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
     const [draggedTaskName, setDraggedTaskName] = useState<string>("")
 
     const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false)
+    const [taskFindModalOpen, setTaskFindModalOpen] = useState<boolean>(false)
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -395,6 +397,14 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
         })
     }, [todoTasks, allTasks])
 
+    const taskFindOpenModal = useCallback(()=>{
+        setTaskFindModalOpen(true)
+    }, [])
+
+    const taskFindCloseModal = useCallback(()=>{
+        setTaskFindModalOpen(false)
+    }, [])
+
     return (
         <Modal
             width={{       //Название	Минимальная ширина (px)	Описание
@@ -445,17 +455,18 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
                         </Flex> : null}
                     </List>
                 </CustomCard>
+                <CustomButton onClick={()=>setTaskFindModalOpen(true)} style={{marginBlock: '6px'}}>Поиск задач</CustomButton>
             </Space>
             <Divider></Divider>
             <div className={"TasksListsHolder"}>
                 <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-                    <CustomCard cardTitle={"Завершенные задачи"} hoverable={false} styles={{body: {padding: '0'}}}>
+                    <CustomCard cardTitle={"Завершенные задачи"} hoverable={false} styles={{body: {padding: '0'}, title: {textWrap: 'wrap'}}}>
                         {createDroppableList({taskList: completeTasks, taskListName: "completeTasks"})}
                     </CustomCard>
-                    <CustomCard cardTitle={"Активные задачи"} hoverable={false} styles={{body: {padding: '0'}}}>
+                    <CustomCard cardTitle={"Активные задачи"} hoverable={false} styles={{body: {padding: '0'}, title: {textWrap: 'wrap'}}}>
                         {createDroppableList({taskList: activeTasks, taskListName: "activeTasks"})}
                     </CustomCard>
-                    <CustomCard cardTitle={"Планируемые задачи"} hoverable={false} styles={{body: {padding: '0'}}}
+                    <CustomCard cardTitle={"Планируемые задачи"} hoverable={false} styles={{body: {padding: '0'}, title: {textWrap: 'wrap'}}}
                                 extra={isParticipant || isCreator ?
                                     <CustomButton onClick={addPlannedTask}>+</CustomButton> : null}>
                         {createDroppableList({taskList: todoTasks, taskListName: "todoTasks"})}
@@ -481,6 +492,7 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
             <Text>*для перетаскивания задачи нужно немного ее удерживать</Text>
             <TaskModal isModalOpen={isTaskModalOpen} onCancel={handleTaskModalCancel}
                        isParticipant={isCreator || isParticipant}></TaskModal>
+            <TaskFindModal isModalOpen={taskFindModalOpen} handleCancel={taskFindCloseModal}/>
             {/*<button onClick={checkState}>check</button>*/}
         </Modal>
     )
