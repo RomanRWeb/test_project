@@ -1,6 +1,6 @@
 import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
-import {ReduxType, Task, UserData} from "../../types";
-import {editTaskDescription, editTaskName, editTaskState, fetchNewTasks, fetchTasks} from "../api";
+import {Commentary, ReduxType, Task, UserData} from "../../types";
+import {addTaskCommentary, editTaskDescription, editTaskName, editTaskState, fetchNewTasks, fetchTasks} from "../api";
 import {addTask, setTasks} from "../slices/tasksSlice";
 
 
@@ -83,15 +83,9 @@ export const editCurrentTaskName = createAsyncThunk(
             if (result.ok) {
                 const newTask: Task = await result.json();
                 const newTaskList: Task[] = state.tasks.tasks.map(taskFromState => {
-                        if (taskFromState.id === task.id) {
-                            return {
-                                id: taskFromState.id,
-                                name: task.name,
-                                state: taskFromState.state,
-                                description: taskFromState.description,
-                                comments: taskFromState.comments
-                            } as Task;
-                        } else{
+                        if (taskFromState.id === newTask.id) {
+                            return newTask
+                        } else {
                             return taskFromState
                         }
                     }
@@ -99,7 +93,7 @@ export const editCurrentTaskName = createAsyncThunk(
                 dispatch(setTasks(newTaskList));
                 return newTask;
             } else {
-                rejectWithValue({error: 'Unable to fetch user tasks'});
+                rejectWithValue({error: 'Unable to edit task name'});
             }
         } catch (error) {
             createAction(error);
@@ -122,15 +116,9 @@ export const editCurrentTaskDescription = createAsyncThunk(
             if (result.ok) {
                 const newTask: Task = await result.json();
                 const newTaskList: Task[] = state.tasks.tasks.map(taskFromState => {
-                        if (taskFromState.id === task.id) {
-                            return {
-                                id: taskFromState.id,
-                                name: taskFromState.name,
-                                state: taskFromState.state,
-                                description: task.description,
-                                comments: taskFromState.comments
-                            } as Task;
-                        } else{
+                        if (taskFromState.id === newTask.id) {
+                            return newTask
+                        } else {
                             return taskFromState
                         }
                     }
@@ -138,7 +126,38 @@ export const editCurrentTaskDescription = createAsyncThunk(
                 dispatch(setTasks(newTaskList));
                 return newTask;
             } else {
-                rejectWithValue({error: 'Unable to fetch user tasks'});
+                rejectWithValue({error: 'Unable to edit task description'});
+            }
+        } catch (error) {
+            createAction(error);
+        }
+    }
+)
+
+export const addCommentary = createAsyncThunk(
+    'tasks/addCommentary',
+    async (commentList: Commentary[], {dispatch, rejectWithValue, getState}) => {
+        const state = getState() as ReduxType;
+        try {
+            const result = await addTaskCommentary({
+                projId: state.ui.currentProject,
+                commandId: state.ui.currentCommand,
+                task: {id: state.ui.currentTask, commentaryList: commentList}
+            });
+            if (result.ok) {
+                const newTask: Task = await result.json();
+                const newTaskList: Task[] = state.tasks.tasks.map(taskFromState => {
+                        if (taskFromState.id === newTask.id) {
+                            return newTask
+                        } else {
+                            return taskFromState
+                        }
+                    }
+                );
+                dispatch(setTasks(newTaskList));
+                return newTask;
+            } else {
+                rejectWithValue({error: 'Unable to add comment for tasks'});
             }
         } catch (error) {
             createAction(error);

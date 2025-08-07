@@ -1,12 +1,15 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {Divider, Flex, List, message, Modal, Skeleton, Typography} from "antd";
+import {Divider, Flex, List, message, Modal, Skeleton, Space, Typography} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../../../../store";
 import "./TaskModal.css"
 import {Commentary, Task} from "../../../../types";
 import {EditOutlined} from "@ant-design/icons";
-import {editCurrentTaskDescription, editCurrentTaskName} from "../../../../redux/thunks/tasks";
+import {addCommentary, editCurrentTaskDescription, editCurrentTaskName} from "../../../../redux/thunks/tasks";
 import {unwrapResult} from "@reduxjs/toolkit";
+import {CustomInputField} from "../../../../components/CustomInputField/CustomInputField";
+import CustomButton from "../../../../components/CustomButton/CustomButton";
+import {MessageOutlined} from "@ant-design/icons";
 
 interface Props {
     onCancel: () => void;
@@ -24,6 +27,8 @@ const TaskModal = ({onCancel, isModalOpen, isParticipant}: Props) => {
 
     const {Title, Text} = Typography;
     const [messageApi, contextHolder] = message.useMessage();
+
+    const [commentary, setCommentary] = useState<string>('');
 
     const [currentTask, setCurrentTask] = useState<Task>({
         id: '',
@@ -105,6 +110,26 @@ const TaskModal = ({onCancel, isModalOpen, isParticipant}: Props) => {
         )
     }, [currentTask?.description]);
 
+    const handleAddComment = useCallback(() => {
+        const commentList: Commentary[] = currentTask.comments;
+        const newCommentList: Commentary[] = commentList.concat({
+            email: authState.user.email,
+            commentary: commentary
+        })
+        console.log('newCommentList', JSON.stringify(newCommentList, null, 2));
+        dispatch(addCommentary(newCommentList)).then(unwrapResult).then((result) => {
+            if (result !== null) {
+                setCurrentTask(result)
+                setCommentary('')
+            } else {
+                messageApi.error("Не получилось добавить комментарий");
+            }
+        }).catch((e) => {
+            messageApi.error("Не получилось сменить название задачи");
+            console.log('Change task name error', JSON.stringify(e, null, 2));
+        })
+    }, [currentTask?.comments, commentary])
+
     return (
         <Modal
             width={{       //Название	Минимальная ширина (px)	Описание
@@ -129,7 +154,7 @@ const TaskModal = ({onCancel, isModalOpen, isParticipant}: Props) => {
                             editable={isParticipant ? editConfigDescription : false}> {currentTask?.description}</Text>
                     </Flex>
                 </Skeleton>
-                <Flex>
+                <Flex vertical={true}>
                     <List
                         split={false}
                         loading={tasksState.isLoading}
@@ -137,6 +162,14 @@ const TaskModal = ({onCancel, isModalOpen, isParticipant}: Props) => {
                         dataSource={currentTask?.comments}
                         renderItem={(item) => (createComment(item))}
                     />
+                    <Flex gap={"6px"}>
+                        <CustomInputField value={commentary} style={{flex: "1"}}
+                                          onChange={(str) => setCommentary(str.target.value)}
+                                          placeholder={"прокомментируйте задачу тут..."}></CustomInputField>
+                        <CustomButton icon={<MessageOutlined/>} size={"middle"}
+                                      onClick={handleAddComment}></CustomButton>
+                    </Flex>
+
                 </Flex>
             </div>
         </Modal>

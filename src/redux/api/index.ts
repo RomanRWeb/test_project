@@ -1,4 +1,4 @@
-import {Command, Project, Task, UserData} from "../../types";
+import {Command, Commentary, Project, Task, UserData} from "../../types";
 
 export const fetchByID = async (userData: UserData) => {
     const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/users/`);
@@ -140,6 +140,16 @@ export const editTaskDescription = async ({projId, commandId, task}: { projId: s
         method: 'PUT',
         headers: {'content-type': 'application/json'},
         body: JSON.stringify({description: task.description }),
+    })
+}
+
+export const addTaskCommentary = async ({projId, commandId, task}: { projId: string, commandId: string, task: {id: string, commentaryList: Commentary[]}}) => {
+    const url = new URL(`https://68834bc321fa24876a9d80bc.mockapi.io/projects/${projId}/commands/${commandId}/tasks/${task.id}`);
+
+    return fetch(url, {
+        method: 'PUT',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({comments: task.commentaryList }),
     })
 }
 
