@@ -75,14 +75,19 @@ const CommandModal: React.FC<CommandModalProps> = ({isModalOpen, handleCancel}: 
         if (isModalOpen) {
             const command = commandsState.commands?.find((command) => command.id === uiState.currentCommand)
             setCommand(command)
-            const isProjectCreator = projectState.projects?.some((project) => project.creatorId === authState.user.id)
+            const currProject = projectState.projects?.find((project) => project.id === uiState.currentProject)
+            const isProjectCreator = currProject.creatorId === authState.user.id
             if (isProjectCreator) {
                 setCreator(true)
+            } else {
+                setCreator(false)
             }
             console.log('isProjectCreator', JSON.stringify(isProjectCreator, null, 2));
             const isCommandParticipant = command?.userList.some((userEmail) => userEmail === authState.user.email)
             if (isProjectCreator || isCommandParticipant) {
                 setParticipant(true)
+            } else {
+                setParticipant(false)
             }
             console.log('isCommandParticipant', JSON.stringify(isCommandParticipant, null, 2));
             setUserList(command?.userList)
